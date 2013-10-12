@@ -86,6 +86,7 @@ struct tileCoordinate {
 }
 
 -(void) initSpeedTile {
+    [self makeTilesClickable];
     _startButton.alpha = 1.0;
     [_startButton setTitle:@"Start" forState:UIControlStateNormal];
     _infoLabel.text = @"";
@@ -94,6 +95,7 @@ struct tileCoordinate {
     _square.backgroundColor = [UIColor clearColor];
 }
 -(void) initOriginalRules {
+    [self makeTilesClickable];
     [_startButton setTitle:@"Reset" forState:UIControlStateNormal];
     _topInfoLabel.text = @"Blue Score: 0";
     _infoLabel.text =    @"Red  Score: 0";
@@ -102,6 +104,7 @@ struct tileCoordinate {
     _square.backgroundColor = [UIColor clearColor];
 }
 -(void) initChainTile {
+    [self makeTilesClickable];
     [_startButton setTitle:@"Reset" forState:UIControlStateNormal];
     player = true;
     _blueMoves = [[NSMutableArray alloc] initWithObjects: nil];
@@ -736,23 +739,35 @@ struct tileCoordinate {
     if (noopCount > 0) {
         int tileToSwap = arc4random() % _chainStack.count;
         UIButton *buttonToSwap = [_chainStack objectAtIndex:tileToSwap];
-        int randX = arc4random() % 6;
-        int randY = arc4random() % 6;
-        UIButton *otherSwapButton = [[_buttonArray objectAtIndex:randX] objectAtIndex:randY];
+        int theTag = [buttonToSwap tag];
+        int xOld = theTag % 10;
+        int yOld = theTag / 10;
+        int xNew = arc4random() % 6;
+        int yNew = arc4random() % 6;
+        UIButton *otherSwapButton = [[_buttonArray objectAtIndex:xNew] objectAtIndex:yNew];
         while ([otherSwapButton isEqual:buttonToSwap]) {
-            randX = arc4random() % 6;
-            randY = arc4random() % 6;
-            otherSwapButton = [[_buttonArray objectAtIndex:randX] objectAtIndex:randY];
+            xNew = arc4random() % 6;
+            yNew = arc4random() % 6;
+            otherSwapButton = [[_buttonArray objectAtIndex:xNew] objectAtIndex:yNew];
         }
+        UIButton* buttonA = [[_buttonArray objectAtIndex:xOld] objectAtIndex:yOld];
+        UIButton* buttonB = [[_buttonArray objectAtIndex:xNew] objectAtIndex:yNew];
+        int Atag = [buttonA tag];
+        int Btag = [buttonB tag];
+        buttonA.tag = Btag;
+        buttonB.tag = Atag;
         
-        CGRect r = buttonToSwap.frame;
-        CGRect w = otherSwapButton.frame;
         
+        [[_buttonArray objectAtIndex:xOld] replaceObjectAtIndex:yOld withObject:buttonB];
+        [[_buttonArray objectAtIndex:xNew] replaceObjectAtIndex:yNew withObject:buttonA];
+        
+        
+        CGRect frameA = buttonA.frame;
+        CGRect frameB = buttonB.frame;
         [UIView animateWithDuration:0.5 animations:^{
-            buttonToSwap.frame = w;
-            otherSwapButton.frame = r;
+            buttonA.frame = frameB;
+            buttonB.frame = frameA;
         }];
-        
         [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(noop) userInfo:Nil repeats:NO];
     }
 }
