@@ -26,7 +26,7 @@ struct tileCoordinate {
     [super viewDidLoad];
     
     whosTurn = true;
-    start = true;
+    gameRunning = false;
     count = 0;
     speedCount = 0;
     _infoLabel.text = @"";
@@ -78,7 +78,7 @@ struct tileCoordinate {
         }
     }
     
-    start = true;
+    gameRunning = false;
     if ([_lastPlaymode isEqualToString:@"SpeedTile"]) [self initSpeedTile];
     else if ([_lastPlaymode isEqualToString:@"OriginalRules"]) [self initOriginalRules];
     else if ([_lastPlaymode isEqualToString:@"ChainTile"]) [self initChainTile];
@@ -87,12 +87,31 @@ struct tileCoordinate {
 -(void) initSpeedTile {
     _startButton.alpha = 1.0;
     [_startButton setTitle:@"Start" forState:UIControlStateNormal];
+    _infoLabel.text = @"";
+    _topInfoLabel.text = @"";
+    _topSquare.backgroundColor = [UIColor clearColor];
+    _square.backgroundColor = [UIColor clearColor];
 }
 -(void) initOriginalRules {
-    _startButton.alpha = 0.0;
+    [_startButton setTitle:@"Reset" forState:UIControlStateNormal];
+    _topInfoLabel.text = @"Blue Score: 0";
+    _infoLabel.text =    @"Red  Score: 0";
+    whosTurn = true;
+    _topSquare.backgroundColor = [UIColor blueColor];
+    _square.backgroundColor = [UIColor clearColor];
 }
 -(void) initChainTile {
-    _startButton.alpha = 0.0;
+    [_startButton setTitle:@"Reset" forState:UIControlStateNormal];
+    player = true;
+    _blueMoves = [[NSMutableArray alloc] initWithObjects: nil];
+    _yellowMoves = [[NSMutableArray alloc] initWithObjects: nil];
+    _chainStack = [[NSMutableArray alloc] initWithObjects: nil];
+    _topInfoLabel.text = @"Blue   Score: 0";
+    _infoLabel.text =    @"Yellow Score: 0";
+    _topSquare.backgroundColor = [UIColor blueColor];
+    _square.backgroundColor = [UIColor clearColor];
+    chainYellowScore = 0;
+    chainBlueScore = 0;
 }
 
 - (void) viewDidAppear:(BOOL)animated {
@@ -139,23 +158,27 @@ struct tileCoordinate {
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSString *playmode = delegate.playmode;
     if ([playmode isEqualToString:@"SpeedTile"]) [self resetSpeedTile];
+    else if ([playmode isEqualToString:@"OriginalRules"]) [self resetOriginalRules];
+    else if ([playmode isEqualToString:@"ChainTile"]) [self resetChainTile];
 }
 
 - (IBAction)rulesButton:(id)sender {
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSString *playmode = delegate.playmode;
     if ([playmode isEqualToString:@"SpeedTile"]) [self rulesButtonSpeedTile];
+    else if ([playmode isEqualToString:@"OriginalRules"]) [self rulesButtonOriginalRules];
+    else if ([playmode isEqualToString:@"ChainTile"]) [self rulesButtonChainTile];
 }
 
 #pragma mark SpeedTile methods
 
 - (void) resetSpeedTile {
-    if (start) {
+    if (!gameRunning) {
         _theTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
         _infoLabel.text = @"0:00:00";
         _theClockTimer = [NSTimer scheduledTimerWithTimeInterval:.01 target:self selector:@selector(incrementTimer) userInfo:Nil repeats:YES];
-        start = false;
-        [_startButton setTitle:@"Stop" forState:UIControlStateNormal];
+        gameRunning = true;
+        [_startButton setTitle:@"Reset" forState:UIControlStateNormal];
     } else {
         if (_theTimer)
             [_theTimer invalidate];
@@ -174,7 +197,10 @@ struct tileCoordinate {
         
         speedCount = 0;
         timerCount = 0;
-        start = true;
+        chainBlueScore = 0;
+        chainYellowScore = 0;
+        
+        gameRunning = false;
         [_startButton setTitle:@"Start" forState:UIControlStateNormal];
         
     }
@@ -234,27 +260,32 @@ struct tileCoordinate {
 }
 
 -(void) youLose {
-    UIButton * thisButton = [[_buttonArray objectAtIndex:0] objectAtIndex:0];
+    UIButton * thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:2];
     thisButton.backgroundColor = [UIColor greenColor];
-    [thisButton setTitle:@"Y" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:0];
+    [thisButton setTitle:@"G" forState:UIControlStateNormal];
+    thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:2];
     thisButton.backgroundColor = [UIColor greenColor];
-    [thisButton setTitle:@"O" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:0];
+    [thisButton setTitle:@"A" forState:UIControlStateNormal];
+    thisButton = [[_buttonArray objectAtIndex:3] objectAtIndex:2];
     thisButton.backgroundColor = [UIColor greenColor];
-    [thisButton setTitle:@"U" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:0] objectAtIndex:1];
-    thisButton.backgroundColor = [UIColor greenColor];
-    [thisButton setTitle:@"L" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:1];
-    thisButton.backgroundColor = [UIColor greenColor];
-    [thisButton setTitle:@"O" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:1];
-    thisButton.backgroundColor = [UIColor greenColor];
-    [thisButton setTitle:@"S" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:3] objectAtIndex:1];
+    [thisButton setTitle:@"M" forState:UIControlStateNormal];
+    thisButton = [[_buttonArray objectAtIndex:4] objectAtIndex:2];
     thisButton.backgroundColor = [UIColor greenColor];
     [thisButton setTitle:@"E" forState:UIControlStateNormal];
+    thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:3];
+    thisButton.backgroundColor = [UIColor greenColor];
+    [thisButton setTitle:@"O" forState:UIControlStateNormal];
+    thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:3];
+    thisButton.backgroundColor = [UIColor greenColor];
+    [thisButton setTitle:@"V" forState:UIControlStateNormal];
+    thisButton = [[_buttonArray objectAtIndex:3] objectAtIndex:3];
+    thisButton.backgroundColor = [UIColor greenColor];
+    [thisButton setTitle:@"E" forState:UIControlStateNormal];
+    thisButton = [[_buttonArray objectAtIndex:4] objectAtIndex:3];
+    thisButton.backgroundColor = [UIColor greenColor];
+    [thisButton setTitle:@"R" forState:UIControlStateNormal];
+    
+    _startButton.titleLabel.text = @"Reset";
     
     if ([_topInfoLabel.text isEqualToString:@""]) {
         _topInfoLabel.text = _infoLabel.text;
@@ -264,7 +295,7 @@ struct tileCoordinate {
 }
 
 - (void) rulesButtonSpeedTile {
-    if (start) {
+    if (!gameRunning) {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Speed Tile Rules"
                                                     message:@"Play against the computer who is flipping tiles faster and faster"
                                                    delegate:nil
@@ -324,6 +355,9 @@ struct tileCoordinate {
     
     pushedButton.backgroundColor = whosTurn ? [UIColor blueColor] : [UIColor redColor];
     
+    int myPoints = 1;
+    int minusPoints = 0;
+    
     for (int i = -1; i < 2; i++) {
         for (int j = -1; j < 2; j++) {
             int newX = x + i;
@@ -332,6 +366,8 @@ struct tileCoordinate {
             if (newX >= 0 && newY >= 0 && newX < 6 && newY < 6) {
                 UIButton *adjacentButton = [[buttonArray objectAtIndex:newX] objectAtIndex:newY];
                 if (adjacentButton.backgroundColor != [UIColor grayColor] && adjacentButton.backgroundColor != pushedButton.backgroundColor) {
+                    myPoints += 1;
+                    minusPoints += 1;
                     adjacentButton.backgroundColor = whosTurn ? [UIColor blueColor] : [UIColor redColor];
                     
                     [UIView beginAnimations:@"Flip" context:NULL];
@@ -345,12 +381,71 @@ struct tileCoordinate {
             }
         }
     }
+    
+    NSString *scoreString = whosTurn ? _topInfoLabel.text : _infoLabel.text;
+    NSString *otherScoreString = whosTurn ? _infoLabel.text : _topInfoLabel.text;
+    NSArray *secondSplits = [otherScoreString componentsSeparatedByString:@" "];
+    NSArray *theSplits = [scoreString componentsSeparatedByString:@" "];
+    int currentScore = [[theSplits objectAtIndex:2] intValue];
+    int theirScore = [[secondSplits objectAtIndex:2] intValue];
+    theirScore -= minusPoints;
+    currentScore += myPoints;
+    NSString *stringOne = [theSplits objectAtIndex:0];
+    NSString *stringTwo = [theSplits objectAtIndex:1];
+    NSString *theirOne = [secondSplits objectAtIndex:0];
+    if (whosTurn) {
+        _topInfoLabel.text = [NSString stringWithFormat:@"%@ %@ %d", stringOne, stringTwo, currentScore];
+        _infoLabel.text = [NSString stringWithFormat:@"%@ %@ %d", theirOne, stringTwo, theirScore];
+    } else {
+        _infoLabel.text = [NSString stringWithFormat:@"%@ %@ %d", stringOne, stringTwo, currentScore];
+        _topInfoLabel.text = [NSString stringWithFormat:@"%@ %@ %d", theirOne, stringTwo, theirScore];
+    }
+    
     if (count == 0) {
         count++;
     } else {
         whosTurn = !whosTurn;
+        if (whosTurn) {
+            _topSquare.backgroundColor = [UIColor blueColor];
+            _square.backgroundColor = [UIColor clearColor];
+        } else {
+            _topSquare.backgroundColor = [UIColor clearColor];
+            _square.backgroundColor = [UIColor redColor];
+        }
         count = 0;
     }
+}
+
+-(void) resetOriginalRules {
+    
+    [_startButton setTitle:@"Reset" forState:UIControlStateNormal];
+    _topInfoLabel.text = @"Blue Score: 0";
+    _infoLabel.text =    @"Red  Score: 0";
+    whosTurn = true;
+    _topSquare.backgroundColor = [UIColor blueColor];
+    _square.backgroundColor = [UIColor clearColor];
+    
+    //Make every button grayColor
+    UIButton *thisButton;
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
+            thisButton = [[_buttonArray objectAtIndex:i] objectAtIndex:j];
+            [thisButton setTitle:@"" forState:UIControlStateNormal];
+            [thisButton setBackgroundColor:[UIColor grayColor]];
+        }
+    }
+    
+    gameRunning = false;
+    
+}
+
+- (void) rulesButtonOriginalRules {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Flip Tile Rules"
+                                                        message:@"Play against a friend! Take two turns each and try to get the most tiles"
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
 }
 
 #pragma mark ChainTile methods
@@ -380,10 +475,13 @@ struct tileCoordinate {
     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:pushedButton cache:NO];
     [UIView commitAnimations];
     pushedButton.backgroundColor = player ? [UIColor blueColor] : [UIColor yellowColor];
+    if (player) chainBlueScore += 1;
+    else chainYellowScore += 1;
+    
     
     [self flipNeighbors:x andY:y andWho:player];
     globalFlipper = !player;
-    float timeStop = 0.8;
+    float timeStop = 0.65;
     for (int i = moves.count - 1; i > 0; i-=1) {
         struct tileCoordinate theTileCoordinate;
         [[moves objectAtIndex:i] getValue:&theTileCoordinate];
@@ -397,10 +495,20 @@ struct tileCoordinate {
         [_chainStack addObject: [NSNumber numberWithInt:theOldCoordinate.y]];
         
         [NSTimer scheduledTimerWithTimeInterval:timeStop target:self selector:@selector(chainAnimation) userInfo:nil repeats:NO];
-        timeStop += 0.8;
+        timeStop += 0.65;
     }
     
+    [self updateChain];
+    
     player = !player;
+    
+    if (player) {
+        _topSquare.backgroundColor = [UIColor blueColor];
+        _square.backgroundColor = [UIColor clearColor];
+    } else {
+        _topSquare.backgroundColor = [UIColor clearColor];
+        _square.backgroundColor = [UIColor yellowColor];
+    }
 }
 
 -(void) chainAnimation {
@@ -438,6 +546,11 @@ struct tileCoordinate {
     globalFlipper = !globalFlipper;
 }
 
+-(void) updateChain {
+    _topInfoLabel.text = [NSString stringWithFormat:@"Blue Score: %d", chainBlueScore];
+    _infoLabel.text = [NSString stringWithFormat:@"Yellow Score: %d", chainYellowScore];
+}
+
 -(void) flipNeighbors: (int) x andY: (int) y andWho: (BOOL) whoToFlip {
     for (int i = -1; i < 2; i++) {
         for (int j = -1; j < 2; j++) {
@@ -446,7 +559,20 @@ struct tileCoordinate {
         
             if (newX >= 0 && newY >= 0 && newX < 6 && newY < 6) {
                 UIButton *adjacentButton = [[_buttonArray objectAtIndex:newX] objectAtIndex:newY];
+                
+                UIColor *nextColor = (globalFlipper) ? [UIColor blueColor] : [UIColor yellowColor];
                 if (adjacentButton.backgroundColor != [UIColor grayColor] && !(i == 0 && j == 0) ) {
+                    if (adjacentButton.backgroundColor != nextColor){
+                        if (globalFlipper) {
+                            chainBlueScore += 1;
+                            chainYellowScore -= 1;
+                        }
+                        else {
+                            chainYellowScore += 1;
+                            chainBlueScore -= 1;
+                        }
+                    }
+                    
                     adjacentButton.backgroundColor = (globalFlipper) ? [UIColor blueColor] : [UIColor yellowColor];
                 
                     [UIView beginAnimations:@"Flip" context:NULL];
@@ -458,6 +584,33 @@ struct tileCoordinate {
                 }
             }
         }
+    }
+    [self updateChain];
+}
+
+-(void) resetChainTile {
+    //Make every button grayColor
+    UIButton *thisButton;
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
+            thisButton = [[_buttonArray objectAtIndex:i] objectAtIndex:j];
+            [thisButton setTitle:@"" forState:UIControlStateNormal];
+            [thisButton setBackgroundColor:[UIColor grayColor]];
+        }
+    }
+
+    [self initChainTile];
+    
+}
+
+- (void) rulesButtonChainTile {
+    if (!gameRunning) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Chain Tile Rules"
+                                                        message:@"Flipping a tile activates a chain reaction!"
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
     }
 }
 

@@ -27,6 +27,9 @@
 		2F8119F71808FB7700113633 /* tileIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2F8119F51808FB7700113633 /* tileIcon@2x.png */; };
 		2F8119F81808FB7700113633 /* tileIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 2F8119F61808FB7700113633 /* tileIcon.png */; };
 		2F8119FD180958FF00113633 /* 00025.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 2F8119FC180958FF00113633 /* 00025.jpg */; };
+		2F811A051809B34700113633 /* favicon@120.png in Resources */ = {isa = PBXBuildFile; fileRef = 2F811A021809B34700113633 /* favicon@120.png */; };
+		2F811A081809B38600113633 /* favicon@58.png in Resources */ = {isa = PBXBuildFile; fileRef = 2F811A061809B38600113633 /* favicon@58.png */; };
+		2F811A091809B38600113633 /* favicon@80.png in Resources */ = {isa = PBXBuildFile; fileRef = 2F811A071809B38600113633 /* favicon@80.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +69,9 @@
 		2F8119F51808FB7700113633 /* tileIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tileIcon@2x.png"; sourceTree = "<group>"; };
 		2F8119F61808FB7700113633 /* tileIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tileIcon.png; sourceTree = "<group>"; };
 		2F8119FC180958FF00113633 /* 00025.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 00025.jpg; sourceTree = "<group>"; };
+		2F811A021809B34700113633 /* favicon@120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "favicon@120.png"; sourceTree = "<group>"; };
+		2F811A061809B38600113633 /* favicon@58.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "favicon@58.png"; sourceTree = "<group>"; };
+		2F811A071809B38600113633 /* favicon@80.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "favicon@80.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,6 +177,9 @@
 		2F8119F01808FAFF00113633 /* pictures */ = {
 			isa = PBXGroup;
 			children = (
+				2F811A061809B38600113633 /* favicon@58.png */,
+				2F811A071809B38600113633 /* favicon@80.png */,
+				2F811A021809B34700113633 /* favicon@120.png */,
 				2F8119FC180958FF00113633 /* 00025.jpg */,
 				2F8119F51808FB7700113633 /* tileIcon@2x.png */,
 				2F8119F61808FB7700113633 /* tileIcon.png */,
@@ -256,14 +265,17 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2F811A081809B38600113633 /* favicon@58.png in Resources */,
 				2F8119CB1808F9C100113633 /* Images.xcassets in Resources */,
 				2F8119F71808FB7700113633 /* tileIcon@2x.png in Resources */,
 				2F8119F41808FB0600113633 /* gear.png in Resources */,
 				2F8119BA1808F9C100113633 /* InfoPlist.strings in Resources */,
+				2F811A091809B38600113633 /* favicon@80.png in Resources */,
 				2F8119C31808F9C100113633 /* Main.storyboard in Resources */,
 				2F8119F31808FB0600113633 /* gear@2x.png in Resources */,
 				2F8119F81808FB7700113633 /* tileIcon.png in Resources */,
 				2F8119FD180958FF00113633 /* 00025.jpg in Resources */,
+				2F811A051809B34700113633 /* favicon@120.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -410,7 +422,6 @@
 		2F8119E21808F9C100113633 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TileWars/TileWars-Prefix.pch";
@@ -423,7 +434,6 @@
 		2F8119E31808F9C100113633 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TileWars/TileWars-Prefix.pch";

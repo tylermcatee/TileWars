@@ -12,11 +12,15 @@
     BOOL whosTurn;
     int count;
     int speedCount;
-    BOOL start;
+    BOOL gameRunning;
     int timerCount;
     BOOL player;
     
+    int trueScore;
+    int falseScore;
     
+    int chainBlueScore;
+    int chainYellowScore;
     
     int globalI;
     NSArray* globalMoves;
@@ -26,6 +30,8 @@
     int globalNewX;
     int globalNewY;
 }
+@property (weak, nonatomic) IBOutlet UILabel *topSquare;
+@property (weak, nonatomic) IBOutlet UILabel *square;
 
 @property (strong, nonatomic) NSMutableArray *chainStack;
 @property (strong, nonatomic) NSMutableArray *blueMoves;
