@@ -7,6 +7,7 @@
 //
 
 #import "RulesViewController.h"
+#import "AppDelegate.h"
 
 @interface RulesViewController ()
 
@@ -18,12 +19,9 @@
 {
     [super viewDidLoad];
 	_buttonArray = [[NSMutableArray alloc] init];
-    int row = 0;
     
     UIButton *button = [self makeButton];
-    CGRect newFrame = button.frame;
-    newFrame.origin.x = (CGFloat) 115;
-    newFrame.origin.y = 200;
+    CGRect newFrame = CGRectMake(115, 200, 90, 90);
     button.frame = newFrame;
     button.tag = 0;
     button.backgroundColor = [UIColor redColor];
@@ -31,9 +29,7 @@
     [_buttonArray addObject:button];
     
     button = [self makeButton];
-    newFrame = button.frame;
-    newFrame.origin.x = (CGFloat) 165;
-    newFrame.origin.y = 200;
+    newFrame = CGRectMake(215, 250, 40.0, 40.0);
     button.frame = newFrame;
     button.tag = 1;
     button.backgroundColor = [UIColor greenColor];
@@ -41,9 +37,7 @@
     [_buttonArray addObject:button];
     
     button = [self makeButton];
-    newFrame = button.frame;
-    newFrame.origin.x = (CGFloat) 115;
-    newFrame.origin.y = 250;
+    newFrame = CGRectMake(165, 300, 40.0, 40.0);
     button.frame = newFrame;
     button.tag = 2;
     button.backgroundColor = [UIColor blueColor];
@@ -51,9 +45,7 @@
     [_buttonArray addObject:button];
     
     button = [self makeButton];
-    newFrame = button.frame;
-    newFrame.origin.x = (CGFloat) 165;
-    newFrame.origin.y = 250;
+    newFrame = CGRectMake(215, 300, 40.0, 40.0);
     button.frame = newFrame;
     button.tag = 3;
     button.backgroundColor = [UIColor yellowColor];
@@ -77,6 +69,8 @@
     UIButton *thisButton = (UIButton *) sender;
     int index = [thisButton tag];
     
+    AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    
     [UIView animateWithDuration:0.5 animations:^{
         
         if (index == 0) {
@@ -86,6 +80,7 @@
             button1.frame = CGRectMake(215, 250, 40.0, 40.0);
             button2.frame = CGRectMake(165, 300, 40.0, 40.0);
             button3.frame = CGRectMake(215, 300, 40.0, 40.0);
+            [delegate updatePlayMode:@"SpeedTile"];
         } else if (index == 1) {
             UIButton *button0 = _buttonArray[0];
             UIButton *button2 = _buttonArray[2];
@@ -93,6 +88,7 @@
             button0.frame = CGRectMake(65.0, 250.0, 40.0, 40.0);
             button2.frame = CGRectMake(65.0, 300, 40.0, 40.0);
             button3.frame = CGRectMake(115.0, 300, 40.0, 40.0);
+            [delegate updatePlayMode:@"OriginalRules"];
         } else if (index == 2) {
             UIButton *button0 = _buttonArray[0];
             UIButton *button1 = _buttonArray[1];
@@ -100,6 +96,7 @@
             button0.frame = CGRectMake(165.0, 150.0, 40.0, 40.0);
             button1.frame = CGRectMake(215.0, 150.0, 40.0, 40.0);
             button3.frame = CGRectMake(215.0, 200.0, 40.0, 40.0);
+            [delegate updatePlayMode:@"ChainTile"];
         } else if (index == 3) {
             UIButton *button0 = _buttonArray[0];
             UIButton *button1 = _buttonArray[1];
@@ -107,6 +104,7 @@
             button0.frame = CGRectMake(65.0, 150.0, 40.0, 40.0);
             button1.frame = CGRectMake(115.0, 150.0, 40.0, 40.0);
             button2.frame = CGRectMake(65.0, 200.0, 40.0, 40.0);
+            [delegate updatePlayMode:@"NONE"];
         }
         thisButton.frame = CGRectMake(115, 200, 90, 90);
 

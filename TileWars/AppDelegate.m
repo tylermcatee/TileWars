@@ -12,7 +12,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // Override point for customization after application launch.
+    _playmode = @"SpeedTile";
     return YES;
 }
 							
@@ -41,6 +41,10 @@
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+-(void) updatePlayMode: (NSString *) newMode {
+    _playmode = newMode;
 }
 
 @end
