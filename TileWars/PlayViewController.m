@@ -24,7 +24,7 @@
     start = true;
     count = 0;
     speedCount = 0;
-    _playmode = @"SpeedTile";
+    _playmode = @"OriginalRules";
     
     for (int i = 15; i < 300; i += 50) {
         NSMutableArray *columnArray = [[NSMutableArray alloc] init];
@@ -72,6 +72,7 @@
 
 -(void) makePlayForRules: (NSMutableArray *) buttonArray forX: (int) x andY: (int) y {
     if([_playmode isEqualToString:@"SpeedTile"]) [self makePlayForRulesSpeedTile:buttonArray forX:x andY:y];
+    else if([_playmode isEqualToString:@"OriginalRules"]) [self originalRules:buttonArray forX:x andY:y];
 }
 
 -(void) originalRules: (NSMutableArray *) buttonArray forX: (int) x andY: (int) y {
