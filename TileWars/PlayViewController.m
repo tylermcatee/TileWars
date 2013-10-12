@@ -206,17 +206,22 @@
     if (speedCount == 2) {
         [_theTimer invalidate];
         NSLog(@"Invalidating!");
-        _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
+        _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.4 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
     }
     if (speedCount == 4) {
         [_theTimer invalidate];
         NSLog(@"Invalidating!");
-        _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
+        _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.3 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
     }
     if (speedCount == 5) {
         [_theTimer invalidate];
         NSLog(@"Invalidating!");
-        _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
+        _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
+    }
+    if (speedCount == 10) {
+        [_theTimer invalidate];
+        NSLog(@"Invalidating!");
+        _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.05 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
     }
     if (speedCount == 36) {
         [_theTimer invalidate];
