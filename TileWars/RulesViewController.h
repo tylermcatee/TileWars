@@ -10,4 +10,7 @@
 
 @interface RulesViewController : UIViewController
 
+@property (nonatomic, strong) NSMutableArray *buttonArray;
+
+-(IBAction)selectedTile:(id)sender;
 @end

@@ -6,6 +6,7 @@
 //  Copyright (c) 2013 Tyler McAtee. All rights reserved.
 //
 
+#import "math.h"
 #import "PlayViewController.h"
 
 @interface PlayViewController ()
@@ -24,12 +25,14 @@
     start = true;
     count = 0;
     speedCount = 0;
-    _playmode = @"OriginalRules";
+    _playmode = @"SpeedTile";
+    _infoLabel.text = @"";
+    _topInfoLabel.text = @"";
     
     for (int i = 15; i < 300; i += 50) {
         NSMutableArray *columnArray = [[NSMutableArray alloc] init];
         column = 0;
-        for (int j = 70; j < 370; j += 50) {
+        for (int j = 90; j < 390; j += 50) {
             UIButton *button = [self makeButton];
             CGRect newFrame = button.frame;
             newFrame.origin.x = (CGFloat) i;
@@ -131,12 +134,18 @@
 
 - (void) resetSpeedTile {
     if (start) {
-        _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
+        _theTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
+        _infoLabel.text = @"0:00:00";
+        _theClockTimer = [NSTimer scheduledTimerWithTimeInterval:.01 target:self selector:@selector(incrementTimer) userInfo:Nil repeats:YES];
         start = false;
         [_startButton setTitle:@"Stop" forState:UIControlStateNormal];
     } else {
         if (_theTimer)
             [_theTimer invalidate];
+        if (_theClockTimer) {
+            [_theClockTimer invalidate];
+            _infoLabel.text = @"";
+        }
         UIButton *thisButton;
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 6; j++) {
@@ -144,9 +153,9 @@
                 [thisButton setBackgroundColor:[UIColor grayColor]];
             }
         }
-        whosTurn = true;
         
         speedCount = 0;
+        timerCount = 0;
         thisButton = [[_buttonArray objectAtIndex:0] objectAtIndex:0];
         [thisButton setTitle:@"" forState:UIControlStateNormal];
         thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:0];
@@ -187,76 +196,111 @@
 }
 
 -(void) randomFlip {
+    
+    timerCount += 1;
+    
     int randX = rand() % 6;
     int randY = rand() % 6;
     UIButton *pushedButton = [[_buttonArray objectAtIndex:randX] objectAtIndex:randY];
-    
-    if (![pushedButton.backgroundColor isEqual:[UIColor grayColor]])
-        return;
-    
+        
+    while ([pushedButton.backgroundColor isEqual:[UIColor redColor]]) {
+        randX = rand() % 6;
+        randY = rand() % 6;
+        pushedButton = [[_buttonArray objectAtIndex:randX] objectAtIndex:randY];
+    }
     [UIView beginAnimations:@"Flip" context:NULL];
     [UIView setAnimationDuration:0.40];
     [UIView setAnimationDelegate:self];
     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:pushedButton cache:NO];
     [UIView setAnimationDelegate:self];
     [UIView commitAnimations];
-    
     pushedButton.backgroundColor = [UIColor redColor];
-    
     speedCount += 1;
-    if (speedCount == 2) {
-        [_theTimer invalidate];
-        NSLog(@"Invalidating!");
-        _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.4 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
-    }
-    if (speedCount == 4) {
-        [_theTimer invalidate];
-        NSLog(@"Invalidating!");
-        _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.3 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
-    }
-    if (speedCount == 5) {
-        [_theTimer invalidate];
-        NSLog(@"Invalidating!");
-        _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
-    }
+    
+    [_theTimer invalidate];
+    float delay = 1/(pow((float)timerCount, 0.3));
+    _theTimer = [NSTimer scheduledTimerWithTimeInterval: delay target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
+    
     if (speedCount == 10) {
+        [_theClockTimer invalidate];
         [_theTimer invalidate];
-        NSLog(@"Invalidating!");
-        _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.05 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
-    }
-    if (speedCount == 36) {
-        [_theTimer invalidate];
-        UIButton * thisButton = [[_buttonArray objectAtIndex:0] objectAtIndex:0];
-        thisButton.backgroundColor = [UIColor greenColor];
-        [thisButton setTitle:@"Y" forState:UIControlStateNormal];
-        thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:0];
-        thisButton.backgroundColor = [UIColor greenColor];
-        [thisButton setTitle:@"O" forState:UIControlStateNormal];
-        thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:0];
-        thisButton.backgroundColor = [UIColor greenColor];
-        [thisButton setTitle:@"U" forState:UIControlStateNormal];
-        thisButton = [[_buttonArray objectAtIndex:0] objectAtIndex:1];
-        thisButton.backgroundColor = [UIColor greenColor];
-        [thisButton setTitle:@"L" forState:UIControlStateNormal];
-        thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:1];
-        thisButton.backgroundColor = [UIColor greenColor];
-        [thisButton setTitle:@"O" forState:UIControlStateNormal];
-        thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:1];
-        thisButton.backgroundColor = [UIColor greenColor];
-        [thisButton setTitle:@"S" forState:UIControlStateNormal];
-        thisButton = [[_buttonArray objectAtIndex:3] objectAtIndex:1];
-        thisButton.backgroundColor = [UIColor greenColor];
-        [thisButton setTitle:@"E" forState:UIControlStateNormal];
+        _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.6 target:self selector:@selector(youLose) userInfo:nil repeats:NO];
     }
     
 }
 
+-(void) youLose {
+    UIButton * thisButton = [[_buttonArray objectAtIndex:0] objectAtIndex:0];
+    thisButton.backgroundColor = [UIColor greenColor];
+    [thisButton setTitle:@"Y" forState:UIControlStateNormal];
+    thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:0];
+    thisButton.backgroundColor = [UIColor greenColor];
+    [thisButton setTitle:@"O" forState:UIControlStateNormal];
+    thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:0];
+    thisButton.backgroundColor = [UIColor greenColor];
+    [thisButton setTitle:@"U" forState:UIControlStateNormal];
+    thisButton = [[_buttonArray objectAtIndex:0] objectAtIndex:1];
+    thisButton.backgroundColor = [UIColor greenColor];
+    [thisButton setTitle:@"L" forState:UIControlStateNormal];
+    thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:1];
+    thisButton.backgroundColor = [UIColor greenColor];
+    [thisButton setTitle:@"O" forState:UIControlStateNormal];
+    thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:1];
+    thisButton.backgroundColor = [UIColor greenColor];
+    [thisButton setTitle:@"S" forState:UIControlStateNormal];
+    thisButton = [[_buttonArray objectAtIndex:3] objectAtIndex:1];
+    thisButton.backgroundColor = [UIColor greenColor];
+    [thisButton setTitle:@"E" forState:UIControlStateNormal];
+    
+    if ([_topInfoLabel.text isEqualToString:@""]) {
+        _topInfoLabel.text = _infoLabel.text;
+    } else if ([self timeToInt:_infoLabel] > [self timeToInt:_topInfoLabel]) {
+        _topInfoLabel.text = _infoLabel.text;
+    }
+}
+
 - (void) rulesButtonSpeedTile {
+    if (start) {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Speed Tile Rules"
                                                     message:@"Play against the computer who is flipping tiles faster and faster"
                                                    delegate:nil
                                           cancelButtonTitle:@"OK"
                                           otherButtonTitles:nil];
     [alert show];
+    }
 }
+
+-(void) incrementTimer {
+    NSString *theText = _infoLabel.text;
+    NSArray *theNums = [theText componentsSeparatedByString:@":"];
+    NSInteger minute = [[theNums objectAtIndex:0] intValue];
+    NSInteger second = [[theNums objectAtIndex:1] intValue];
+    NSInteger milisecond = [[theNums objectAtIndex:2] intValue];
+    milisecond += 1;
+    if (milisecond == 60) {
+        milisecond = 0;
+        second += 1;
+    }
+    if (second == 60) {
+        second = 0;
+        minute += 1;
+    }
+    
+    NSString *minutes = [NSString stringWithFormat:@"%d:", minute];
+    NSString *seconds = (second < 10) ? [NSString stringWithFormat:@"0%d:", second] : [NSString stringWithFormat:@"%d:", second];
+    NSString *miliseconds = (milisecond < 10) ? [NSString stringWithFormat:@"0%d", milisecond] : [NSString stringWithFormat:@"%d", milisecond];
+    
+    _infoLabel.text = [NSString stringWithFormat:@"%@%@%@", minutes, seconds, miliseconds];
+}
+
+-(NSInteger *) timeToInt : (UILabel *) labelUnderExamination{
+    NSString *theText = labelUnderExamination.text;
+    NSArray *theNums = [theText componentsSeparatedByString:@":"];
+    NSInteger minute = [[theNums objectAtIndex:0] intValue];
+    NSInteger second = [[theNums objectAtIndex:1] intValue];
+    NSInteger milisecond = [[theNums objectAtIndex:2] intValue];
+    
+    return (NSInteger *)(minute * 10000 + second* 100 + milisecond);
+}
+
 @end

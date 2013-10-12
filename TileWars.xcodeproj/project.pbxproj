@@ -26,6 +26,7 @@
 		2F8119F41808FB0600113633 /* gear.png in Resources */ = {isa = PBXBuildFile; fileRef = 2F8119F21808FB0600113633 /* gear.png */; };
 		2F8119F71808FB7700113633 /* tileIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2F8119F51808FB7700113633 /* tileIcon@2x.png */; };
 		2F8119F81808FB7700113633 /* tileIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 2F8119F61808FB7700113633 /* tileIcon.png */; };
+		2F8119FD180958FF00113633 /* 00025.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 2F8119FC180958FF00113633 /* 00025.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +65,7 @@
 		2F8119F21808FB0600113633 /* gear.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gear.png; sourceTree = "<group>"; };
 		2F8119F51808FB7700113633 /* tileIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tileIcon@2x.png"; sourceTree = "<group>"; };
 		2F8119F61808FB7700113633 /* tileIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tileIcon.png; sourceTree = "<group>"; };
+		2F8119FC180958FF00113633 /* 00025.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 00025.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,6 +171,7 @@
 		2F8119F01808FAFF00113633 /* pictures */ = {
 			isa = PBXGroup;
 			children = (
+				2F8119FC180958FF00113633 /* 00025.jpg */,
 				2F8119F51808FB7700113633 /* tileIcon@2x.png */,
 				2F8119F61808FB7700113633 /* tileIcon.png */,
 				2F8119F11808FB0600113633 /* gear@2x.png */,
@@ -260,6 +263,7 @@
 				2F8119C31808F9C100113633 /* Main.storyboard in Resources */,
 				2F8119F31808FB0600113633 /* gear@2x.png in Resources */,
 				2F8119F81808FB7700113633 /* tileIcon.png in Resources */,
+				2F8119FD180958FF00113633 /* 00025.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

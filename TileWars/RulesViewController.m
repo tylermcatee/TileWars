@@ -14,19 +14,63 @@
 
 @implementation RulesViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
+	_buttonArray = [[NSMutableArray alloc] init];
+    int row = 0;
+    
+    UIButton *button = [self makeButton];
+    CGRect newFrame = button.frame;
+    newFrame.origin.x = (CGFloat) 95;
+    newFrame.origin.y = 200;
+    button.frame = newFrame;
+    button.tag = 1000 + row;
+    [self.view addSubview:button];
+    [_buttonArray addObject:button];
+    
+    button = [self makeButton];
+    newFrame = button.frame;
+    newFrame.origin.x = (CGFloat) 145;
+    newFrame.origin.y = 200;
+    button.frame = newFrame;
+    button.tag = 1000 + row;
+    [self.view addSubview:button];
+    [_buttonArray addObject:button];
+    
+    button = [self makeButton];
+    newFrame = button.frame;
+    newFrame.origin.x = (CGFloat) 95;
+    newFrame.origin.y = 250;
+    button.frame = newFrame;
+    button.tag = 1000 + row;
+    [self.view addSubview:button];
+    [_buttonArray addObject:button];
+    
+    button = [self makeButton];
+    newFrame = button.frame;
+    newFrame.origin.x = (CGFloat) 145;
+    newFrame.origin.y = 250;
+    button.frame = newFrame;
+    button.tag = 1000 + row;
+    [self.view addSubview:button];
+    [_buttonArray addObject:button];
+
+}
+
+-(UIButton *) makeButton
+{
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    button.backgroundColor = [UIColor grayColor];
+    [button addTarget:self
+               action:@selector(selectedTile:)
+     forControlEvents:UIControlEventTouchDown];
+    button.frame = CGRectMake(80.0, 210.0, 40.0, 40.0);
+    return button;
+}
+
+-(IBAction)selectedTile:(id)sender {
+    int x;
 }
 
 - (void)didReceiveMemoryWarning
