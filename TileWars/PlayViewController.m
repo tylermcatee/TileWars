@@ -82,6 +82,7 @@ struct tileCoordinate {
     if ([_lastPlaymode isEqualToString:@"SpeedTile"]) [self initSpeedTile];
     else if ([_lastPlaymode isEqualToString:@"OriginalRules"]) [self initOriginalRules];
     else if ([_lastPlaymode isEqualToString:@"ChainTile"]) [self initChainTile];
+    else [self initMemoryTile];
 }
 
 -(void) initSpeedTile {
@@ -112,6 +113,17 @@ struct tileCoordinate {
     _square.backgroundColor = [UIColor clearColor];
     chainYellowScore = 0;
     chainBlueScore = 0;
+}
+-(void) initMemoryTile {
+    [_startButton setTitle:@"Next" forState:UIControlStateNormal];
+    _chainStack = [[NSMutableArray alloc] initWithObjects: nil];
+    _topSquare.backgroundColor = [UIColor clearColor];
+    _square.backgroundColor = [UIColor clearColor];
+    _topInfoLabel.text = @"Max Level: 0";
+    _infoLabel.text = @"Current Level: 0";
+    maxMemoryLevel = 0;
+    currentMemoryLevel = 0;
+    [self makeTilesNonclickable];
 }
 
 - (void) viewDidAppear:(BOOL)animated {
@@ -152,6 +164,7 @@ struct tileCoordinate {
     if([playmode isEqualToString:@"SpeedTile"]) [self makePlayForRulesSpeedTile:buttonArray forX:x andY:y];
     else if([playmode isEqualToString:@"OriginalRules"]) [self originalRules:buttonArray forX:x andY:y];
     else if([playmode isEqualToString:@"ChainTile"]) [self makePlayForRulesChainTile:buttonArray forX:x andY:y];
+    else [self makePlayForRulesMemoryTile:buttonArray forX:x andY:y];
 }
 
 - (IBAction)reset:(id)sender {
@@ -160,6 +173,7 @@ struct tileCoordinate {
     if ([playmode isEqualToString:@"SpeedTile"]) [self resetSpeedTile];
     else if ([playmode isEqualToString:@"OriginalRules"]) [self resetOriginalRules];
     else if ([playmode isEqualToString:@"ChainTile"]) [self resetChainTile];
+    else [self resetMemoryTile];
 }
 
 - (IBAction)rulesButton:(id)sender {
@@ -168,6 +182,7 @@ struct tileCoordinate {
     if ([playmode isEqualToString:@"SpeedTile"]) [self rulesButtonSpeedTile];
     else if ([playmode isEqualToString:@"OriginalRules"]) [self rulesButtonOriginalRules];
     else if ([playmode isEqualToString:@"ChainTile"]) [self rulesButtonChainTile];
+    else [self rulesButtonMemoryTile];
 }
 
 #pragma mark SpeedTile methods
@@ -229,8 +244,8 @@ struct tileCoordinate {
     
     timerCount += 1;
     
-    int randX = rand() % 6;
-    int randY = rand() % 6;
+    int randX = arc4random() % 6;
+    int randY = arc4random() % 6;
     UIButton *pushedButton = [[_buttonArray objectAtIndex:randX] objectAtIndex:randY];
         
     while ([pushedButton.backgroundColor isEqual:[UIColor redColor]]) {
@@ -598,6 +613,8 @@ struct tileCoordinate {
             [thisButton setBackgroundColor:[UIColor grayColor]];
         }
     }
+    
+    
 
     [self initChainTile];
     
@@ -606,7 +623,173 @@ struct tileCoordinate {
 - (void) rulesButtonChainTile {
     if (!gameRunning) {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Chain Tile Rules"
-                                                        message:@"Flipping a tile activates a chain reaction!"
+                                                        message:@"Play with a friend. Flipping a tile activates a chain reaction!"
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+    }
+}
+
+#pragma mark memoryTile methods
+
+-(void) makeTilesNonclickable {
+    UIButton* thisButton;
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
+            thisButton = [[_buttonArray objectAtIndex:i] objectAtIndex:j];
+            thisButton.userInteractionEnabled = false;
+        }
+    }
+}
+
+-(void) makeTilesClickable {
+    UIButton* thisButton;
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
+            thisButton = [[_buttonArray objectAtIndex:i] objectAtIndex:j];
+            thisButton.userInteractionEnabled = true;
+        }
+    }
+}
+
+-(void) makePlayForRulesMemoryTile:(NSMutableArray *)buttonArray forX:(int)x andY:(int)y {
+    UIButton *thisButton = [[_buttonArray objectAtIndex:x] objectAtIndex:y];
+    if ([_chainStack containsObject: thisButton]) {
+        [_chainStack removeObject:thisButton];
+        thisButton.backgroundColor = [UIColor greenColor];
+        [UIView beginAnimations:@"Flip" context:NULL];
+        [UIView setAnimationDuration:0.40];
+        [UIView setAnimationDelegate:self];
+        [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:thisButton cache:NO];
+        [UIView setAnimationDelegate:self];
+        [UIView commitAnimations];
+        if (_chainStack.count == 0) {
+            currentMemoryLevel += 1;
+            [self makeTilesNonclickable];
+            [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeTilesGrayFlip) userInfo:nil repeats:NO];
+            [self updateMemoryLevels];
+        }
+    } else {
+        thisButton.backgroundColor = [UIColor redColor];
+        if (maxMemoryLevel < currentMemoryLevel) {
+            maxMemoryLevel = currentMemoryLevel;
+        }
+        currentMemoryLevel = 0;
+        [self updateMemoryLevels];
+        [self makeTilesNonclickable];
+        [UIView beginAnimations:@"Flip" context:NULL];
+        [UIView setAnimationDuration:0.40];
+        [UIView setAnimationDelegate:self];
+        [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:thisButton cache:NO];
+        [UIView setAnimationDelegate:self];
+        [UIView commitAnimations];
+        
+        for (UIButton *missedButton in _chainStack) {
+            missedButton.backgroundColor = [UIColor blueColor];
+        }
+        [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeTilesGrayFlip) userInfo:nil repeats:NO];
+    }
+    
+}
+
+-(void) resetMemoryTile {
+    while (_chainStack.count > 0) [_chainStack removeObjectAtIndex:0];
+    
+    [self makeMemoryLevel];
+    
+    [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeTilesGrayFlip) userInfo:nil repeats:NO];
+    
+    if (_chainStack.count > 1) {
+        noopCount = (currentMemoryLevel - 1);
+        [NSTimer scheduledTimerWithTimeInterval:2 target:self selector:@selector(makeTileSwaps) userInfo:nil repeats:NO];
+    }
+    
+    [NSTimer scheduledTimerWithTimeInterval:_chainStack.count target:self selector:@selector(makeTilesClickable) userInfo:nil repeats:NO];
+    
+}
+
+-(void) makeMemoryLevel {
+    int increment = 1;
+    int numLoops = 0;
+    for(int i = 0; i < currentMemoryLevel + 1 && numLoops < 17; i+= increment){
+        int randX = arc4random() % 6;
+        int randY = arc4random() % 6;
+        UIButton *hiddenButton = [[_buttonArray objectAtIndex:randX] objectAtIndex:randY];
+        [_chainStack addObject:hiddenButton];
+        hiddenButton.backgroundColor = [UIColor greenColor];
+        [UIView beginAnimations:@"Flip" context:NULL];
+        [UIView setAnimationDuration:0.40];
+        [UIView setAnimationDelegate:self];
+        [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:hiddenButton cache:NO];
+        [UIView setAnimationDelegate:self];
+        [UIView commitAnimations];
+        numLoops += 1;
+        
+        if (i > 6 && i % 3 == 0) {
+            increment += 1;
+        }
+    }
+}
+
+-(void) makeTileSwaps {
+    if (noopCount > 0) {
+        int tileToSwap = arc4random() % _chainStack.count;
+        UIButton *buttonToSwap = [_chainStack objectAtIndex:tileToSwap];
+        int randX = arc4random() % 6;
+        int randY = arc4random() % 6;
+        UIButton *otherSwapButton = [[_buttonArray objectAtIndex:randX] objectAtIndex:randY];
+        while ([otherSwapButton isEqual:buttonToSwap]) {
+            randX = arc4random() % 6;
+            randY = arc4random() % 6;
+            otherSwapButton = [[_buttonArray objectAtIndex:randX] objectAtIndex:randY];
+        }
+        
+        CGRect r = buttonToSwap.frame;
+        CGRect w = otherSwapButton.frame;
+        
+        [UIView animateWithDuration:0.5 animations:^{
+            buttonToSwap.frame = w;
+            otherSwapButton.frame = r;
+        }];
+        
+        [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(noop) userInfo:Nil repeats:NO];
+    }
+}
+
+-(void) noop {
+    noopCount -= 1;
+    [self makeTileSwaps];
+}
+
+- (void) makeTilesGrayFlip {
+    UIButton *thisButton;
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
+            thisButton = [[_buttonArray objectAtIndex:i] objectAtIndex:j];
+            [thisButton setTitle:@"" forState:UIControlStateNormal];
+            if (thisButton.backgroundColor != [UIColor grayColor]) {
+                [UIView beginAnimations:@"Flip" context:NULL];
+                [UIView setAnimationDuration:0.40];
+                [UIView setAnimationDelegate:self];
+                [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:thisButton cache:NO];
+                [UIView setAnimationDelegate:self];
+                [UIView commitAnimations];
+            }
+            [thisButton setBackgroundColor:[UIColor grayColor]];
+        }
+    }
+}
+
+-(void) updateMemoryLevels {
+    self.topInfoLabel.text = [NSString stringWithFormat:@"Max Level: %d", maxMemoryLevel];
+    self.infoLabel.text = [NSString stringWithFormat:@"Current Level: %d", currentMemoryLevel];
+}
+
+- (void) rulesButtonMemoryTile {
+    if (!gameRunning) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Memory Tile Rules"
+                                                        message:@"ONE MILLION YEARS DUNGEON!!!!!!"
                                                        delegate:nil
                                               cancelButtonTitle:@"OK"
                                               otherButtonTitles:nil];

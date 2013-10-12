@@ -32,7 +32,7 @@
     newFrame = CGRectMake(215, 250, 40.0, 40.0);
     button.frame = newFrame;
     button.tag = 1;
-    button.backgroundColor = [UIColor greenColor];
+    button.backgroundColor = [UIColor yellowColor];
     [self.view addSubview:button];
     [_buttonArray addObject:button];
     
@@ -48,7 +48,7 @@
     newFrame = CGRectMake(215, 300, 40.0, 40.0);
     button.frame = newFrame;
     button.tag = 3;
-    button.backgroundColor = [UIColor yellowColor];
+    button.backgroundColor = [UIColor greenColor];
     [self.view addSubview:button];
     [_buttonArray addObject:button];
 
@@ -104,7 +104,7 @@
             button0.frame = CGRectMake(65.0, 150.0, 40.0, 40.0);
             button1.frame = CGRectMake(115.0, 150.0, 40.0, 40.0);
             button2.frame = CGRectMake(65.0, 200.0, 40.0, 40.0);
-            [delegate updatePlayMode:@"NONE"];
+            [delegate updatePlayMode:@"MemoryTile"];
         }
         thisButton.frame = CGRectMake(115, 200, 90, 90);
 

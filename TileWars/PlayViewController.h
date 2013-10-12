@@ -29,6 +29,10 @@
     BOOL globalFlipper;
     int globalNewX;
     int globalNewY;
+    int maxMemoryLevel;
+    int currentMemoryLevel;
+    
+    int noopCount;
 }
 @property (weak, nonatomic) IBOutlet UILabel *topSquare;
 @property (weak, nonatomic) IBOutlet UILabel *square;
