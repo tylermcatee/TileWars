@@ -8,6 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface PlayViewController : UIViewController
+@interface PlayViewController : UIViewController {
+    BOOL isPushed;
+}
+
+@property (strong, nonatomic) NSMutableArray *buttonArray;
+-(IBAction) selectedTile: (id) sender;
 
 @end
