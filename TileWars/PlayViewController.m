@@ -24,9 +24,7 @@ struct tileCoordinate {
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    _buttonArray = [[NSMutableArray alloc] init];
-    int row = 0;
-    int column;
+    
     whosTurn = true;
     start = true;
     count = 0;
@@ -35,12 +33,18 @@ struct tileCoordinate {
     _topInfoLabel.text = @"";
     player = true;
     
+    //Data Structures for ChainTile
     _blueMoves = [[NSMutableArray alloc] initWithObjects: nil];
     _yellowMoves = [[NSMutableArray alloc] initWithObjects: nil];
     _chainStack = [[NSMutableArray alloc] initWithObjects: nil];
     
+    
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    _lastPlaymode = delegate.playmode;
+    _lastPlaymode = delegate.playmode; //Will initialize to FastTile
+    
+    _buttonArray = [[NSMutableArray alloc] init];
+    int row = 0;
+    int column;
     for (int i = 15; i < 300; i += 50) {
         NSMutableArray *columnArray = [[NSMutableArray alloc] init];
         column = 0;
@@ -63,37 +67,39 @@ struct tileCoordinate {
 -(void) reloadScreen {
     _infoLabel.text = @"";
     _topInfoLabel.text = @"";
+    
+    //Make every button grayColor
     UIButton *thisButton;
     for (int i = 0; i < 6; i++) {
         for (int j = 0; j < 6; j++) {
             thisButton = [[_buttonArray objectAtIndex:i] objectAtIndex:j];
+            [thisButton setTitle:@"" forState:UIControlStateNormal];
             [thisButton setBackgroundColor:[UIColor grayColor]];
         }
     }
     
-    thisButton = [[_buttonArray objectAtIndex:0] objectAtIndex:0];
-    [thisButton setTitle:@"" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:0];
-    [thisButton setTitle:@"" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:0];
-    [thisButton setTitle:@"" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:0] objectAtIndex:1];
-    [thisButton setTitle:@"" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:1];
-    [thisButton setTitle:@"" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:1];
-    [thisButton setTitle:@"" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:3] objectAtIndex:1];
-    [thisButton setTitle:@"" forState:UIControlStateNormal];
     start = true;
+    if ([_lastPlaymode isEqualToString:@"SpeedTile"]) [self initSpeedTile];
+    else if ([_lastPlaymode isEqualToString:@"OriginalRules"]) [self initOriginalRules];
+    else if ([_lastPlaymode isEqualToString:@"ChainTile"]) [self initChainTile];
+}
+
+-(void) initSpeedTile {
+    _startButton.alpha = 1.0;
     [_startButton setTitle:@"Start" forState:UIControlStateNormal];
+}
+-(void) initOriginalRules {
+    _startButton.alpha = 0.0;
+}
+-(void) initChainTile {
+    _startButton.alpha = 0.0;
 }
 
 - (void) viewDidAppear:(BOOL)animated {
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     if (![_lastPlaymode isEqualToString:delegate.playmode]) {
-        [self reloadScreen];
         _lastPlaymode = delegate.playmode;
+        [self reloadScreen];
     }
 }
 
@@ -118,7 +124,6 @@ struct tileCoordinate {
     UIButton *thisButton = (UIButton *) sender;
     int y = [thisButton tag] % 10;
     int x = [thisButton tag] / 10;
-    
     [self makePlayForRules:_buttonArray forX:x andY:y];
 }
 
@@ -162,26 +167,13 @@ struct tileCoordinate {
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 6; j++) {
                 thisButton = [[_buttonArray objectAtIndex:i] objectAtIndex:j];
+                [thisButton setTitle:@"" forState:UIControlStateNormal];
                 [thisButton setBackgroundColor:[UIColor grayColor]];
             }
         }
         
         speedCount = 0;
         timerCount = 0;
-        thisButton = [[_buttonArray objectAtIndex:0] objectAtIndex:0];
-        [thisButton setTitle:@"" forState:UIControlStateNormal];
-        thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:0];
-        [thisButton setTitle:@"" forState:UIControlStateNormal];
-        thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:0];
-        [thisButton setTitle:@"" forState:UIControlStateNormal];
-        thisButton = [[_buttonArray objectAtIndex:0] objectAtIndex:1];
-        [thisButton setTitle:@"" forState:UIControlStateNormal];
-        thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:1];
-        [thisButton setTitle:@"" forState:UIControlStateNormal];
-        thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:1];
-        [thisButton setTitle:@"" forState:UIControlStateNormal];
-        thisButton = [[_buttonArray objectAtIndex:3] objectAtIndex:1];
-        [thisButton setTitle:@"" forState:UIControlStateNormal];
         start = true;
         [_startButton setTitle:@"Start" forState:UIControlStateNormal];
         
@@ -386,69 +378,67 @@ struct tileCoordinate {
     [UIView setAnimationDuration:0.40];
     [UIView setAnimationDelegate:self];
     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:pushedButton cache:NO];
-    [UIView setAnimationDelegate:self];
     [UIView commitAnimations];
     pushedButton.backgroundColor = player ? [UIColor blueColor] : [UIColor yellowColor];
     
     [self flipNeighbors:x andY:y andWho:player];
-    BOOL flipper = !player;
-    float timeStop = 0.5;
-    for (int i = moves.count - 2; i >= 0; i-=1) {
+    globalFlipper = !player;
+    float timeStop = 0.8;
+    for (int i = moves.count - 1; i > 0; i-=1) {
         struct tileCoordinate theTileCoordinate;
-        [[globalMoves objectAtIndex:i] getValue:&theTileCoordinate];
-        [_chainStack addObject: [NSNumber numberWithInt:i]];
-        [_chainStack addObject: [NSNumber numberWithInt:x]];
-        [_chainStack addObject: [NSNumber numberWithInt:y]];
-        [_chainStack addObject: [NSNumber numberWithInt: theTileCoordinate.x]];
-        [_chainStack addObject: [NSNumber numberWithInt: theTileCoordinate.y]];
-        [_chainStack addObject: moves];
-        [_chainStack addObject: [NSNumber numberWithInt: (int) flipper]];
-        [NSTimer scheduledTimerWithTimeInterval:timeStop target:self selector:@selector(flipBack) userInfo:nil repeats:NO];
-        flipper = !flipper;
-        timeStop += 0.5;
+        [[moves objectAtIndex:i] getValue:&theTileCoordinate];
+        struct tileCoordinate theOldCoordinate;
+        [[moves objectAtIndex:i - 1] getValue:&theOldCoordinate];
+        
+        
+        [_chainStack addObject: [NSNumber numberWithInt:theTileCoordinate.x]];
+        [_chainStack addObject: [NSNumber numberWithInt:theTileCoordinate.y]];
+        [_chainStack addObject: [NSNumber numberWithInt:theOldCoordinate.x]];
+        [_chainStack addObject: [NSNumber numberWithInt:theOldCoordinate.y]];
+        
+        [NSTimer scheduledTimerWithTimeInterval:timeStop target:self selector:@selector(chainAnimation) userInfo:nil repeats:NO];
+        timeStop += 0.8;
     }
     
     player = !player;
 }
 
--(void) flipBack {
+-(void) chainAnimation {
     
-    int theI = [[_chainStack objectAtIndex:0] integerValue];
+    int xOld = [[_chainStack objectAtIndex:0] integerValue];
     [_chainStack removeObjectAtIndex:0];
-    int oldX = [[_chainStack objectAtIndex:0] integerValue];
+    int yOld = [[_chainStack objectAtIndex:0] integerValue];
     [_chainStack removeObjectAtIndex:0];
-    int oldY = [[_chainStack objectAtIndex:0] integerValue];
+    int xNew = [[_chainStack objectAtIndex:0] integerValue];
     [_chainStack removeObjectAtIndex:0];
-    int newX = [[_chainStack objectAtIndex:0] integerValue];
-    [_chainStack removeObjectAtIndex:0];
-    int newY = [[_chainStack objectAtIndex:0] integerValue];
-    [_chainStack removeObjectAtIndex:0];
-    NSMutableArray *theMoves = [_chainStack objectAtIndex:0];
-    [_chainStack removeObjectAtIndex:0];
-    bool theFlipper = (bool) [[_chainStack objectAtIndex:0] integerValue];
+    int yNew = [[_chainStack objectAtIndex:0] integerValue];
     [_chainStack removeObjectAtIndex:0];
     
-    struct tileCoordinate theTileCoordinate;
-    [[theMoves objectAtIndex:theI] getValue:&theTileCoordinate];
+    NSLog(@"Swapping: (%d, %d) <--> (%d, %d)", xOld, yOld, xNew, yNew);
     
-    UIButton *buttonA = [[_buttonArray objectAtIndex:oldX] objectAtIndex:oldY];
+    UIButton* buttonA = [[_buttonArray objectAtIndex:xOld] objectAtIndex:yOld];
+    UIButton* buttonB = [[_buttonArray objectAtIndex:xNew] objectAtIndex:yNew];
+    int Atag = [buttonA tag];
+    int Btag = [buttonB tag];
+    buttonA.tag = Btag;
+    buttonB.tag = Atag;
+    
+    
+    [[_buttonArray objectAtIndex:xOld] replaceObjectAtIndex:yOld withObject:buttonB];
+    [[_buttonArray objectAtIndex:xNew] replaceObjectAtIndex:yNew withObject:buttonA];
+    
+    
     CGRect frameA = buttonA.frame;
-    UIButton *buttonB = [[_buttonArray objectAtIndex:newX] objectAtIndex:newY];
     CGRect frameB = buttonB.frame;
-    
-    [[_buttonArray objectAtIndex:oldX] replaceObjectAtIndex:oldY withObject:buttonB];
-    [[_buttonArray objectAtIndex:newX] replaceObjectAtIndex:newY withObject:buttonA];
-    
     [UIView animateWithDuration:0.5 animations:^{
         buttonA.frame = frameB;
         buttonB.frame = frameA;
     }];
-    [self flipNeighbors:newX andY:newY andWho:theFlipper];
-
+    [self flipNeighbors:xNew andY:yNew andWho:globalFlipper];
+    globalFlipper = !globalFlipper;
 }
 
 -(void) flipNeighbors: (int) x andY: (int) y andWho: (BOOL) whoToFlip {
-    UIButton *pushedButton = [[_buttonArray objectAtIndex:x] objectAtIndex:y];
     for (int i = -1; i < 2; i++) {
         for (int j = -1; j < 2; j++) {
             int newX = x + i;
@@ -456,14 +446,13 @@ struct tileCoordinate {
         
             if (newX >= 0 && newY >= 0 && newX < 6 && newY < 6) {
                 UIButton *adjacentButton = [[_buttonArray objectAtIndex:newX] objectAtIndex:newY];
-                if (adjacentButton.backgroundColor != [UIColor grayColor] && adjacentButton.backgroundColor != pushedButton.backgroundColor) {
-                    adjacentButton.backgroundColor = whoToFlip ? [UIColor blueColor] : [UIColor yellowColor];
+                if (adjacentButton.backgroundColor != [UIColor grayColor] && !(i == 0 && j == 0) ) {
+                    adjacentButton.backgroundColor = (globalFlipper) ? [UIColor blueColor] : [UIColor yellowColor];
                 
                     [UIView beginAnimations:@"Flip" context:NULL];
                     [UIView setAnimationDuration:0.40];
                     [UIView setAnimationDelegate:self];
                     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:adjacentButton cache:NO];
-                    [UIView setAnimationDelegate:self];
                 
                     [UIView commitAnimations];
                 }
