@@ -21,8 +21,10 @@
     int row = 0;
     int column;
     whosTurn = true;
+    start = true;
     count = 0;
     speedCount = 0;
+    _playmode = @"SpeedTile";
     
     for (int i = 15; i < 300; i += 50) {
         NSMutableArray *columnArray = [[NSMutableArray alloc] init];
@@ -69,23 +71,7 @@
 }
 
 -(void) makePlayForRules: (NSMutableArray *) buttonArray forX: (int) x andY: (int) y {
-    
-    UIButton *pushedButton = [[buttonArray objectAtIndex:x] objectAtIndex:y];
-    
-    if (![pushedButton.backgroundColor isEqual:[UIColor redColor]])
-        return;
-    
-    [UIView beginAnimations:@"Flip" context:NULL];
-    [UIView setAnimationDuration:0.40];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:pushedButton cache:NO];
-    [UIView setAnimationDelegate:self];
-    [UIView commitAnimations];
-    
-    pushedButton.backgroundColor = [UIColor grayColor];
-    
-    speedCount -= 1;
-    
+    if([_playmode isEqualToString:@"SpeedTile"]) [self makePlayForRulesSpeedTile:buttonArray forX:x andY:y];
 }
 
 -(void) originalRules: (NSMutableArray *) buttonArray forX: (int) x andY: (int) y {
@@ -130,6 +116,73 @@
         whosTurn = !whosTurn;
         count = 0;
     }
+}
+
+- (IBAction)reset:(id)sender {
+    if ([_playmode isEqualToString:@"SpeedTile"]) [self resetSpeedTile];
+}
+
+- (IBAction)rulesButton:(id)sender {
+    if ([_playmode isEqualToString:@"SpeedTile"]) [self rulesButtonSpeedTile];
+}
+
+#pragma mark SpeedTile methods
+
+- (void) resetSpeedTile {
+    if (start) {
+        _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
+        start = false;
+        [_startButton setTitle:@"Stop" forState:UIControlStateNormal];
+    } else {
+        if (_theTimer)
+            [_theTimer invalidate];
+        UIButton *thisButton;
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 6; j++) {
+                thisButton = [[_buttonArray objectAtIndex:i] objectAtIndex:j];
+                [thisButton setBackgroundColor:[UIColor grayColor]];
+            }
+        }
+        whosTurn = true;
+        
+        speedCount = 0;
+        thisButton = [[_buttonArray objectAtIndex:0] objectAtIndex:0];
+        [thisButton setTitle:@"" forState:UIControlStateNormal];
+        thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:0];
+        [thisButton setTitle:@"" forState:UIControlStateNormal];
+        thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:0];
+        [thisButton setTitle:@"" forState:UIControlStateNormal];
+        thisButton = [[_buttonArray objectAtIndex:0] objectAtIndex:1];
+        [thisButton setTitle:@"" forState:UIControlStateNormal];
+        thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:1];
+        [thisButton setTitle:@"" forState:UIControlStateNormal];
+        thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:1];
+        [thisButton setTitle:@"" forState:UIControlStateNormal];
+        thisButton = [[_buttonArray objectAtIndex:3] objectAtIndex:1];
+        [thisButton setTitle:@"" forState:UIControlStateNormal];
+        start = true;
+        [_startButton setTitle:@"Start" forState:UIControlStateNormal];
+        
+    }
+
+}
+
+-(void) makePlayForRulesSpeedTile:(NSMutableArray *)buttonArray forX:(int)x andY:(int)y {
+    UIButton *pushedButton = [[buttonArray objectAtIndex:x] objectAtIndex:y];
+    
+    if (![pushedButton.backgroundColor isEqual:[UIColor redColor]])
+        return;
+    
+    [UIView beginAnimations:@"Flip" context:NULL];
+    [UIView setAnimationDuration:0.40];
+    [UIView setAnimationDelegate:self];
+    [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:pushedButton cache:NO];
+    [UIView setAnimationDelegate:self];
+    [UIView commitAnimations];
+    
+    pushedButton.backgroundColor = [UIColor grayColor];
+    
+    speedCount -= 1;
 }
 
 -(void) randomFlip {
@@ -189,40 +242,15 @@
         thisButton.backgroundColor = [UIColor greenColor];
         [thisButton setTitle:@"E" forState:UIControlStateNormal];
     }
-
+    
 }
 
-- (IBAction)reset:(id)sender {
-    if (_theTimer)
-        [_theTimer invalidate];
-    UIButton *thisButton;
-    for (int i = 0; i < 6; i++) {
-        for (int j = 0; j < 6; j++) {
-            thisButton = [[_buttonArray objectAtIndex:i] objectAtIndex:j];
-            [thisButton setBackgroundColor:[UIColor grayColor]];
-        }
-    }
-    
-    whosTurn = true;
-    
-    speedCount = 0;
-    thisButton = [[_buttonArray objectAtIndex:0] objectAtIndex:0];
-    [thisButton setTitle:@"" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:0];
-    [thisButton setTitle:@"" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:0];
-    [thisButton setTitle:@"" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:0] objectAtIndex:1];
-    [thisButton setTitle:@"" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:1] objectAtIndex:1];
-    [thisButton setTitle:@"" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:2] objectAtIndex:1];
-    [thisButton setTitle:@"" forState:UIControlStateNormal];
-    thisButton = [[_buttonArray objectAtIndex:3] objectAtIndex:1];
-    [thisButton setTitle:@"" forState:UIControlStateNormal];
-    
-    _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
-
+- (void) rulesButtonSpeedTile {
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Speed Tile Rules"
+                                                    message:@"Play against the computer who is flipping tiles faster and faster"
+                                                   delegate:nil
+                                          cancelButtonTitle:@"OK"
+                                          otherButtonTitles:nil];
+    [alert show];
 }
-
 @end
