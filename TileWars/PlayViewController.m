@@ -39,6 +39,9 @@ struct tileCoordinate {
     _chainStack = [[NSMutableArray alloc] initWithObjects: nil];
     _allTimers = [[NSMutableArray alloc] initWithObjects: nil];
     
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSInteger maxMemoryLevel = [_prefs integerForKey:@"maxMemoryLevel"];
+    
     
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     _lastPlaymode = delegate.playmode; //Will initialize to FastTile
@@ -159,9 +162,8 @@ struct tileCoordinate {
     _chainStack = [[NSMutableArray alloc] initWithObjects: nil];
     _topSquare.backgroundColor = [UIColor clearColor];
     _square.backgroundColor = [UIColor clearColor];
-    _topInfoLabel.text = @"Max Level: 0";
+    _topInfoLabel.text = [NSString stringWithFormat:@"Max Level: %d", maxMemoryLevel];
     _infoLabel.text = @"Current Level: 0";
-    maxMemoryLevel = 0;
     currentMemoryLevel = 0;
     [self makeTilesNonclickable];
 }
@@ -236,6 +238,8 @@ struct tileCoordinate {
         [_allTimers addObject:_theClockTimer];
         gameRunning = true;
         [_startButton setTitle:@"Reset" forState:UIControlStateNormal];
+        speedCount = 0;
+        timerCount = 0;
     } else {
         if (_theTimer)
             [_theTimer invalidate];
@@ -717,6 +721,8 @@ struct tileCoordinate {
         thisButton.backgroundColor = [UIColor redColor];
         if (maxMemoryLevel < currentMemoryLevel) {
             maxMemoryLevel = currentMemoryLevel;
+            [_prefs setInteger:maxMemoryLevel forKey:@"maxMemoryLevel"];
+            [_prefs synchronize];
         }
         currentMemoryLevel = 0;
         [self updateMemoryLevels];

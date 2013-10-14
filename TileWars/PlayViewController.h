@@ -29,13 +29,15 @@
     BOOL globalFlipper;
     int globalNewX;
     int globalNewY;
-    int maxMemoryLevel;
+    NSInteger maxMemoryLevel;
     int currentMemoryLevel;
     
     int noopCount;
 }
 @property (weak, nonatomic) IBOutlet UILabel *topSquare;
 @property (weak, nonatomic) IBOutlet UILabel *square;
+
+@property (strong, nonatomic) NSUserDefaults *prefs;
 
 @property (strong, nonatomic) NSMutableArray *chainStack;
 @property (strong, nonatomic) NSMutableArray *allTimers;
