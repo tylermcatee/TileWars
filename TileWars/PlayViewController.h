@@ -15,6 +15,7 @@
     BOOL gameRunning;
     int timerCount;
     BOOL player;
+    BOOL nextButtonActive;
     
     int trueScore;
     int falseScore;

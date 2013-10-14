@@ -32,6 +32,7 @@ struct tileCoordinate {
     _infoLabel.text = @"";
     _topInfoLabel.text = @"";
     player = true;
+    nextButtonActive = true;
     
     //Data Structures for ChainTile
     _blueMoves = [[NSMutableArray alloc] initWithObjects: nil];
@@ -530,7 +531,7 @@ struct tileCoordinate {
         [_yellowMoves addObject: [NSValue value:&t withObjCType:@encode(struct tileCoordinate)]];
         moves = _yellowMoves;
     }
-    
+    [self makeTilesNonclickable];
     [UIView beginAnimations:@"Flip" context:NULL];
     [UIView setAnimationDuration:0.40];
     [UIView setAnimationDelegate:self];
@@ -559,7 +560,7 @@ struct tileCoordinate {
         [_allTimers addObject: [NSTimer scheduledTimerWithTimeInterval:timeStop target:self selector:@selector(chainAnimation) userInfo:nil repeats:NO]];
         timeStop += 0.65;
     }
-    
+    [_allTimers addObject: [NSTimer scheduledTimerWithTimeInterval:timeStop target:self selector:@selector(makeTilesClickable) userInfo:nil repeats:NO]];
     [self updateChain];
     
     player = !player;
@@ -715,6 +716,7 @@ struct tileCoordinate {
             currentMemoryLevel += 1;
             [self makeTilesNonclickable];
             [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeTilesGrayFlip) userInfo:nil repeats:NO]];
+            [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeNextButtonActive) userInfo:nil repeats:NO]];
             [self updateMemoryLevels];
         }
     } else {
@@ -733,6 +735,7 @@ struct tileCoordinate {
         [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:thisButton cache:NO];
         [UIView setAnimationDelegate:self];
         [UIView commitAnimations];
+        [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeNextButtonActive) userInfo:nil repeats:NO]];
         
         for (UIButton *missedButton in _chainStack) {
             missedButton.backgroundColor = [UIColor blueColor];
@@ -741,8 +744,12 @@ struct tileCoordinate {
     }
     
 }
+-(void) makeNextButtonActive{
+    nextButtonActive = true;
+}
 
 -(void) resetMemoryTile {
+    if (!nextButtonActive) return;
     while (_chainStack.count > 0) [_chainStack removeObjectAtIndex:0];
     
     [self makeMemoryLevel];
@@ -756,6 +763,7 @@ struct tileCoordinate {
         [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeTilesClickable) userInfo:nil repeats:NO]];
     }
     else[_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:_chainStack.count target:self selector:@selector(makeTilesClickable) userInfo:nil repeats:NO]];
+    nextButtonActive = false;
 }
 
 -(void) makeMemoryLevel {
@@ -850,7 +858,7 @@ struct tileCoordinate {
 - (void) rulesButtonMemoryTile {
     if (!gameRunning) {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Memory Tile Rules"
-                                                        message:@"ONE MILLION YEARS DUNGEON!!!!!!"
+                                                        message:@"Remember where the tiles were shown."
                                                        delegate:nil
                                               cancelButtonTitle:@"OK"
                                               otherButtonTitles:nil];
