@@ -44,24 +44,55 @@ struct tileCoordinate {
     _lastPlaymode = delegate.playmode; //Will initialize to FastTile
     
     _buttonArray = [[NSMutableArray alloc] init];
-    int row = 0;
-    int column;
-    for (int i = 15; i < 300; i += 50) {
-        NSMutableArray *columnArray = [[NSMutableArray alloc] init];
-        column = 0;
-        for (int j = 90; j < 390; j += 50) {
-            UIButton *button = [self makeButton];
-            CGRect newFrame = button.frame;
-            newFrame.origin.x = (CGFloat) i;
-            newFrame.origin.y = (CGFloat) j;
-            button.frame = newFrame;
-            button.tag = row*10 + column;
-            [columnArray addObject:button];
-            [self.view addSubview:button];
-            column += 1;
+    
+    CGSize iOSDeviceScreenSize = [[UIScreen mainScreen] bounds].size;
+    
+    if (iOSDeviceScreenSize.height == 480)
+    {
+        int row = 0;
+        int column;
+        for (int i = 15; i < 300; i += 50) {
+            NSMutableArray *columnArray = [[NSMutableArray alloc] init];
+            column = 0;
+            for (int j = 30; j < 330; j += 50) {
+                UIButton *button = [self makeButton];
+                CGRect newFrame = button.frame;
+                newFrame.origin.x = (CGFloat) i;
+                newFrame.origin.y = (CGFloat) j;
+                button.frame = newFrame;
+                button.tag = row*10 + column;
+                [columnArray addObject:button];
+                [self.view addSubview:button];
+                column += 1;
+            }
+            [_buttonArray addObject:columnArray];
+            row += 1;
         }
-        [_buttonArray addObject:columnArray];
-        row += 1;
+    }
+
+    
+    if (iOSDeviceScreenSize.height == 568)
+    {   // iPhone 5 and iPod Touch 5th generation: 4 inch screen
+        
+        int row = 0;
+        int column;
+        for (int i = 15; i < 300; i += 50) {
+            NSMutableArray *columnArray = [[NSMutableArray alloc] init];
+            column = 0;
+            for (int j = 90; j < 390; j += 50) {
+                UIButton *button = [self makeButton];
+                CGRect newFrame = button.frame;
+                newFrame.origin.x = (CGFloat) i;
+                newFrame.origin.y = (CGFloat) j;
+                button.frame = newFrame;
+                button.tag = row*10 + column;
+                [columnArray addObject:button];
+                [self.view addSubview:button];
+                column += 1;
+            }
+            [_buttonArray addObject:columnArray];
+            row += 1;
+        }
     }
 }
 
@@ -549,7 +580,7 @@ struct tileCoordinate {
     int yNew = [[_chainStack objectAtIndex:0] integerValue];
     [_chainStack removeObjectAtIndex:0];
     
-    NSLog(@"Swapping: (%d, %d) <--> (%d, %d)", xOld, yOld, xNew, yNew);
+//    NSLog(@"Swapping: (%d, %d) <--> (%d, %d)", xOld, yOld, xNew, yNew);
     
     UIButton* buttonA = [[_buttonArray objectAtIndex:xOld] objectAtIndex:yOld];
     UIButton* buttonB = [[_buttonArray objectAtIndex:xNew] objectAtIndex:yNew];
@@ -715,7 +746,10 @@ struct tileCoordinate {
         noopCount = (currentMemoryLevel - 1);
         [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:2 target:self selector:@selector(makeTileSwaps) userInfo:nil repeats:NO]];
     }
-    [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:_chainStack.count target:self selector:@selector(makeTilesClickable) userInfo:nil repeats:NO]];
+    if (_chainStack.count == 2){
+        [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeTilesClickable) userInfo:nil repeats:NO]];
+    }
+    else[_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:_chainStack.count target:self selector:@selector(makeTilesClickable) userInfo:nil repeats:NO]];
 }
 
 -(void) makeMemoryLevel {

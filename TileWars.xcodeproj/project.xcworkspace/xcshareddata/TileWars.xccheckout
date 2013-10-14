@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>55704B86-5647-4B52-94F2-B28F68BCA741</string>
+	<key>IDESourceControlProjectName</key>
+	<string>TileWars</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>F0B08F7D-7FCD-4181-AA06-AEBE2E969E5F</key>
+		<string>https://github.com/tylermcatee/TileWars.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>TileWars.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>F0B08F7D-7FCD-4181-AA06-AEBE2E969E5F</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/tylermcatee/TileWars.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>F0B08F7D-7FCD-4181-AA06-AEBE2E969E5F</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>F0B08F7D-7FCD-4181-AA06-AEBE2E969E5F</string>
+			<key>IDESourceControlWCCName</key>
+			<string>TileWars</string>
+		</dict>
+	</array>
+</dict>
+</plist>

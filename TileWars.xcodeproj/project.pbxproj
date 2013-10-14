@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1148647C180C91AC00506EE5 /* Storyboard_iPhone35.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1148647B180C91AC00506EE5 /* Storyboard_iPhone35.storyboard */; };
 		2F8119B01808F9C100113633 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F8119AF1808F9C100113633 /* Foundation.framework */; };
 		2F8119B21808F9C100113633 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F8119B11808F9C100113633 /* CoreGraphics.framework */; };
 		2F8119B41808F9C100113633 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F8119B31808F9C100113633 /* UIKit.framework */; };
@@ -43,6 +44,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1148647B180C91AC00506EE5 /* Storyboard_iPhone35.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Storyboard_iPhone35.storyboard; sourceTree = "<group>"; };
 		2F8119AC1808F9C100113633 /* TileWars.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TileWars.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F8119AF1808F9C100113633 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		2F8119B11808F9C100113633 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -141,6 +143,7 @@
 				2F8119C11808F9C100113633 /* Main.storyboard */,
 				2F8119CA1808F9C100113633 /* Images.xcassets */,
 				2F8119B61808F9C100113633 /* Supporting Files */,
+				1148647B180C91AC00506EE5 /* Storyboard_iPhone35.storyboard */,
 			);
 			path = TileWars;
 			sourceTree = "<group>";
@@ -265,6 +268,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1148647C180C91AC00506EE5 /* Storyboard_iPhone35.storyboard in Resources */,
 				2F811A081809B38600113633 /* favicon@58.png in Resources */,
 				2F8119CB1808F9C100113633 /* Images.xcassets in Resources */,
 				2F8119F71808FB7700113633 /* tileIcon@2x.png in Resources */,
@@ -504,6 +508,7 @@
 				2F8119E31808F9C100113633 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2F8119E41808F9C100113633 /* Build configuration list for PBXNativeTarget "TileWarsTests" */ = {
 			isa = XCConfigurationList;
@@ -512,6 +517,7 @@
 				2F8119E61808F9C100113633 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
