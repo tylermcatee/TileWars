@@ -37,6 +37,7 @@ struct tileCoordinate {
     _blueMoves = [[NSMutableArray alloc] initWithObjects: nil];
     _yellowMoves = [[NSMutableArray alloc] initWithObjects: nil];
     _chainStack = [[NSMutableArray alloc] initWithObjects: nil];
+    _allTimers = [[NSMutableArray alloc] initWithObjects: nil];
     
     
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
@@ -67,6 +68,11 @@ struct tileCoordinate {
 -(void) reloadScreen {
     _infoLabel.text = @"";
     _topInfoLabel.text = @"";
+    
+    for (id timerObject in _allTimers){
+        if ([timerObject isValid]) [timerObject invalidate];
+    }
+    [_allTimers removeAllObjects];
     
     //Make every button grayColor
     UIButton *thisButton;
@@ -193,8 +199,10 @@ struct tileCoordinate {
 - (void) resetSpeedTile {
     if (!gameRunning) {
         _theTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
+        [_allTimers addObject:_theTimer];
         _infoLabel.text = @"0:00:00";
         _theClockTimer = [NSTimer scheduledTimerWithTimeInterval:.01 target:self selector:@selector(incrementTimer) userInfo:Nil repeats:YES];
+        [_allTimers addObject:_theClockTimer];
         gameRunning = true;
         [_startButton setTitle:@"Reset" forState:UIControlStateNormal];
     } else {
@@ -268,11 +276,12 @@ struct tileCoordinate {
     [_theTimer invalidate];
     float delay = 1/(pow((float)timerCount, 0.3));
     _theTimer = [NSTimer scheduledTimerWithTimeInterval: delay target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
-    
+    [_allTimers addObject:_theTimer];
     if (speedCount == 10) {
         [_theClockTimer invalidate];
         [_theTimer invalidate];
         _theTimer = [NSTimer scheduledTimerWithTimeInterval:0.6 target:self selector:@selector(youLose) userInfo:nil repeats:NO];
+        [_allTimers addObject:_theTimer];
     }
     
 }
@@ -512,7 +521,7 @@ struct tileCoordinate {
         [_chainStack addObject: [NSNumber numberWithInt:theOldCoordinate.x]];
         [_chainStack addObject: [NSNumber numberWithInt:theOldCoordinate.y]];
         
-        [NSTimer scheduledTimerWithTimeInterval:timeStop target:self selector:@selector(chainAnimation) userInfo:nil repeats:NO];
+        [_allTimers addObject: [NSTimer scheduledTimerWithTimeInterval:timeStop target:self selector:@selector(chainAnimation) userInfo:nil repeats:NO]];
         timeStop += 0.65;
     }
     
@@ -578,10 +587,10 @@ struct tileCoordinate {
             if (newX >= 0 && newY >= 0 && newX < 6 && newY < 6) {
                 UIButton *adjacentButton = [[_buttonArray objectAtIndex:newX] objectAtIndex:newY];
                 
-                UIColor *nextColor = (globalFlipper) ? [UIColor blueColor] : [UIColor yellowColor];
+                UIColor *nextColor = (whoToFlip) ? [UIColor blueColor] : [UIColor yellowColor];
                 if (adjacentButton.backgroundColor != [UIColor grayColor] && !(i == 0 && j == 0) ) {
                     if (adjacentButton.backgroundColor != nextColor){
-                        if (globalFlipper) {
+                        if (whoToFlip) {
                             chainBlueScore += 1;
                             chainYellowScore -= 1;
                         }
@@ -591,7 +600,7 @@ struct tileCoordinate {
                         }
                     }
                     
-                    adjacentButton.backgroundColor = (globalFlipper) ? [UIColor blueColor] : [UIColor yellowColor];
+                    adjacentButton.backgroundColor = (whoToFlip) ? [UIColor blueColor] : [UIColor yellowColor];
                 
                     [UIView beginAnimations:@"Flip" context:NULL];
                     [UIView setAnimationDuration:0.40];
@@ -670,7 +679,7 @@ struct tileCoordinate {
         if (_chainStack.count == 0) {
             currentMemoryLevel += 1;
             [self makeTilesNonclickable];
-            [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeTilesGrayFlip) userInfo:nil repeats:NO];
+            [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeTilesGrayFlip) userInfo:nil repeats:NO]];
             [self updateMemoryLevels];
         }
     } else {
@@ -691,7 +700,7 @@ struct tileCoordinate {
         for (UIButton *missedButton in _chainStack) {
             missedButton.backgroundColor = [UIColor blueColor];
         }
-        [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeTilesGrayFlip) userInfo:nil repeats:NO];
+        [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeTilesGrayFlip) userInfo:nil repeats:NO]];
     }
     
 }
@@ -700,16 +709,13 @@ struct tileCoordinate {
     while (_chainStack.count > 0) [_chainStack removeObjectAtIndex:0];
     
     [self makeMemoryLevel];
-    
-    [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeTilesGrayFlip) userInfo:nil repeats:NO];
+    [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeTilesGrayFlip) userInfo:nil repeats:NO]];
     
     if (_chainStack.count > 1) {
         noopCount = (currentMemoryLevel - 1);
-        [NSTimer scheduledTimerWithTimeInterval:2 target:self selector:@selector(makeTileSwaps) userInfo:nil repeats:NO];
+        [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:2 target:self selector:@selector(makeTileSwaps) userInfo:nil repeats:NO]];
     }
-    
-    [NSTimer scheduledTimerWithTimeInterval:_chainStack.count target:self selector:@selector(makeTilesClickable) userInfo:nil repeats:NO];
-    
+    [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:_chainStack.count target:self selector:@selector(makeTilesClickable) userInfo:nil repeats:NO]];
 }
 
 -(void) makeMemoryLevel {
@@ -768,7 +774,7 @@ struct tileCoordinate {
             buttonA.frame = frameB;
             buttonB.frame = frameA;
         }];
-        [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(noop) userInfo:Nil repeats:NO];
+        [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(noop) userInfo:Nil repeats:NO]];
     }
 }
 

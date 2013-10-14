@@ -38,6 +38,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *square;
 
 @property (strong, nonatomic) NSMutableArray *chainStack;
+@property (strong, nonatomic) NSMutableArray *allTimers;
 @property (strong, nonatomic) NSMutableArray *blueMoves;
 @property (strong, nonatomic) NSMutableArray *yellowMoves;
 
