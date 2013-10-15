@@ -169,6 +169,7 @@ struct tileCoordinate {
     _infoLabel.text = @"Current Level: 0";
     currentMemoryLevel = 0;
     [self makeTilesNonclickable];
+    [self makeNextButtonActive];
 }
 
 - (void) viewDidAppear:(BOOL)animated {
@@ -752,6 +753,7 @@ struct tileCoordinate {
             missedButton.backgroundColor = [UIColor blueColor];
         }
         [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeTilesGrayFlip) userInfo:nil repeats:NO]];
+        [self initMemoryTile];
     }
     
 }
