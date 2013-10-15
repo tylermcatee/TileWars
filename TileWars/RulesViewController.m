@@ -32,7 +32,7 @@
     newFrame = CGRectMake(215, 250, 40.0, 40.0);
     button.frame = newFrame;
     button.tag = 1;
-    button.backgroundColor = [UIColor yellowColor];
+    button.backgroundColor = [UIColor blueColor];
     [self.view addSubview:button];
     [_buttonArray addObject:button];
     
@@ -40,7 +40,7 @@
     newFrame = CGRectMake(165, 300, 40.0, 40.0);
     button.frame = newFrame;
     button.tag = 2;
-    button.backgroundColor = [UIColor blueColor];
+    button.backgroundColor = [UIColor yellowColor];
     [self.view addSubview:button];
     [_buttonArray addObject:button];
     
