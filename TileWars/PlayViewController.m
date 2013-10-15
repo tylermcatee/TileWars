@@ -142,6 +142,7 @@ struct tileCoordinate {
     _topInfoLabel.text = @"Blue Score: 0";
     _infoLabel.text =    @"Red  Score: 0";
     whosTurn = true;
+    count = 0;
     _topSquare.backgroundColor = [UIColor blueColor];
     _square.backgroundColor = [UIColor clearColor];
 }
@@ -493,6 +494,7 @@ struct tileCoordinate {
     _topInfoLabel.text = @"Blue Score: 0";
     _infoLabel.text =    @"Red  Score: 0";
     whosTurn = true;
+    count = 0;
     _topSquare.backgroundColor = [UIColor blueColor];
     _square.backgroundColor = [UIColor clearColor];
     
