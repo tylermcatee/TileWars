@@ -25,6 +25,12 @@ struct tileCoordinate {
 {
     [super viewDidLoad];
     
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    maxMemoryLevel = [prefs integerForKey:@"maxMemoryLevel"];
+    
+    speedHighScore = [prefs objectForKey:@"speedHighScore"];
+    NSLog(speedHighScore);
+    
     whosTurn = true;
     gameRunning = false;
     count = 0;
@@ -39,10 +45,6 @@ struct tileCoordinate {
     _yellowMoves = [[NSMutableArray alloc] initWithObjects: nil];
     _chainStack = [[NSMutableArray alloc] initWithObjects: nil];
     _allTimers = [[NSMutableArray alloc] initWithObjects: nil];
-    
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSInteger maxMemoryLevel = [_prefs integerForKey:@"maxMemoryLevel"];
-    
     
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     _lastPlaymode = delegate.playmode; //Will initialize to FastTile
@@ -131,7 +133,7 @@ struct tileCoordinate {
     _startButton.alpha = 1.0;
     [_startButton setTitle:@"Start" forState:UIControlStateNormal];
     _infoLabel.text = @"";
-    _topInfoLabel.text = @"";
+    _topInfoLabel.text = speedHighScore;
     _topSquare.backgroundColor = [UIColor clearColor];
     _square.backgroundColor = [UIColor clearColor];
 }
@@ -352,8 +354,16 @@ struct tileCoordinate {
     
     if ([_topInfoLabel.text isEqualToString:@""]) {
         _topInfoLabel.text = _infoLabel.text;
+        speedHighScore = _infoLabel.text;
+        NSLog(speedHighScore);
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setObject:speedHighScore forKey:@"speedHighScore"];
     } else if ([self timeToInt:_infoLabel] > [self timeToInt:_topInfoLabel]) {
         _topInfoLabel.text = _infoLabel.text;
+        speedHighScore = _infoLabel.text;
+        NSLog(speedHighScore);
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setObject:speedHighScore forKey:@"speedHighScore"];
     }
 }
 
@@ -723,8 +733,9 @@ struct tileCoordinate {
         thisButton.backgroundColor = [UIColor redColor];
         if (maxMemoryLevel < currentMemoryLevel) {
             maxMemoryLevel = currentMemoryLevel;
-            [_prefs setInteger:maxMemoryLevel forKey:@"maxMemoryLevel"];
-            [_prefs synchronize];
+            NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+            [defaults setInteger:maxMemoryLevel forKey:@"maxMemoryLevel"];
+            [defaults synchronize];
         }
         currentMemoryLevel = 0;
         [self updateMemoryLevels];
