@@ -29,7 +29,6 @@ struct tileCoordinate {
     maxMemoryLevel = [prefs integerForKey:@"maxMemoryLevel"];
     
     speedHighScore = [prefs objectForKey:@"speedHighScore"];
-    NSLog(speedHighScore);
     
     whosTurn = true;
     gameRunning = false;
@@ -356,13 +355,11 @@ struct tileCoordinate {
     if ([_topInfoLabel.text isEqualToString:@""]) {
         _topInfoLabel.text = _infoLabel.text;
         speedHighScore = _infoLabel.text;
-        NSLog(speedHighScore);
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setObject:speedHighScore forKey:@"speedHighScore"];
     } else if ([self timeToInt:_infoLabel] > [self timeToInt:_topInfoLabel]) {
         _topInfoLabel.text = _infoLabel.text;
         speedHighScore = _infoLabel.text;
-        NSLog(speedHighScore);
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setObject:speedHighScore forKey:@"speedHighScore"];
     }
@@ -786,6 +783,11 @@ struct tileCoordinate {
         int randX = arc4random() % 6;
         int randY = arc4random() % 6;
         UIButton *hiddenButton = [[_buttonArray objectAtIndex:randX] objectAtIndex:randY];
+        while ([hiddenButton.backgroundColor isEqual:[UIColor greenColor]]){
+            int randX = arc4random() % 6;
+            int randY = arc4random() % 6;
+            hiddenButton = [[_buttonArray objectAtIndex:randX] objectAtIndex:randY];
+        }
         [_chainStack addObject:hiddenButton];
         hiddenButton.backgroundColor = [UIColor greenColor];
         [UIView beginAnimations:@"Flip" context:NULL];
