@@ -26,12 +26,16 @@ struct tileCoordinate {
 {
     [super viewDidLoad];
     
+    /** Handling retention of scores */
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     maxMemoryLevel = [prefs integerForKey:@"maxMemoryLevel"];
-    
     speedHighScore = [prefs objectForKey:@"speedHighScore"];
-    
-    whosTurn = true;
+
+    /** This constant declares the size of the matrix for the entire execution of 
+      * the program. Must be 1 <= N <= 6 or tileMatrix will throw errors due to 
+      * limited screen size. */
+    matrix_size = 6;
+
     gameRunning = false;
     count = 0;
     speedCount = 0;
@@ -40,21 +44,25 @@ struct tileCoordinate {
     player = true;
     nextButtonActive = true;
     
-    //Data Structures for ChainTile
+    /** The following four properties are data structures for 
+      * chain tile gameplay */
     _blueMoves = [[NSMutableArray alloc] initWithObjects: nil];
     _yellowMoves = [[NSMutableArray alloc] initWithObjects: nil];
     _chainStack = [[NSMutableArray alloc] initWithObjects: nil];
     _allTimers = [[NSMutableArray alloc] initWithObjects: nil];
     
+    /** Throughout this program reference to the delegate's playmode will be seen. The app
+      * delegate holds a NSString called playmode that can also be accessed by the
+      * SettingsViewController. This is how the menu changes which game we are currently
+      * playing */
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     _lastPlaymode = delegate.playmode; //Will initialize to FastTile
     
-    
-    matrix = [[tileMatrix alloc] initWithSize:6];
+    //The tileMatrix that runs every single game. See tileMatrix.h for info on this class. 
+    matrix = [[tileMatrix alloc] initWithSize:matrix_size];
     [self.view addSubview:matrix];
-    
-    for (int i = 0; i < 6; i++) {
-        for (int j = 0; j < 6; j++) {
+    for (int i = 0; i < matrix_size; i++) {
+        for (int j = 0; j < matrix_size; j++) {
             UIButton *refButton = [matrix getButtonAtX:i andY:j];
             [refButton addTarget:self
                           action:@selector(selectedTile:)
@@ -63,71 +71,11 @@ struct tileCoordinate {
     }
 }
 
--(void) reloadScreen {
-    _infoLabel.text = @"";
-    _topInfoLabel.text = @"";
-    
-    for (id timerObject in _allTimers){
-        if ([timerObject isValid]) [timerObject invalidate];
-    }
-    [_allTimers removeAllObjects];
-    
-    //Make every button grayColor
-    //HERE IS A RESET
-    [matrix resetToGray];
-    
-    gameRunning = false;
-    if ([_lastPlaymode isEqualToString:@"SpeedTile"]) [self initSpeedTile];
-    else if ([_lastPlaymode isEqualToString:@"OriginalRules"]) [self initOriginalRules];
-    else if ([_lastPlaymode isEqualToString:@"ChainTile"]) [self initChainTile];
-    else [self initMemoryTile];
-}
-
--(void) initSpeedTile {
-    [self makeTilesClickable];
-    _startButton.alpha = 1.0;
-    [_startButton setTitle:@"Start" forState:UIControlStateNormal];
-    _infoLabel.text = @"";
-    _topInfoLabel.text = speedHighScore;
-    _topSquare.backgroundColor = [UIColor clearColor];
-    _square.backgroundColor = [UIColor clearColor];
-}
--(void) initOriginalRules {
-    [self makeTilesClickable];
-    [_startButton setTitle:@"Reset" forState:UIControlStateNormal];
-    _topInfoLabel.text = @"Blue Score: 0";
-    _infoLabel.text =    @"Red  Score: 0";
-    whosTurn = true;
-    count = 0;
-    _topSquare.backgroundColor = [UIColor blueColor];
-    _square.backgroundColor = [UIColor clearColor];
-}
--(void) initChainTile {
-    [self makeTilesClickable];
-    [_startButton setTitle:@"Reset" forState:UIControlStateNormal];
-    player = true;
-    _blueMoves = [[NSMutableArray alloc] initWithObjects: nil];
-    _yellowMoves = [[NSMutableArray alloc] initWithObjects: nil];
-    _chainStack = [[NSMutableArray alloc] initWithObjects: nil];
-    _topInfoLabel.text = @"Blue   Score: 0";
-    _infoLabel.text =    @"Yellow Score: 0";
-    _topSquare.backgroundColor = [UIColor blueColor];
-    _square.backgroundColor = [UIColor clearColor];
-    chainYellowScore = 0;
-    chainBlueScore = 0;
-}
--(void) initMemoryTile {
-    [_startButton setTitle:@"Next" forState:UIControlStateNormal];
-    _chainStack = [[NSMutableArray alloc] initWithObjects: nil];
-    _topSquare.backgroundColor = [UIColor clearColor];
-    _square.backgroundColor = [UIColor clearColor];
-    _topInfoLabel.text = [NSString stringWithFormat:@"Max Level: %d", maxMemoryLevel];
-    _infoLabel.text = @"Current Level: 0";
-    currentMemoryLevel = 0;
-    [self makeTilesNonclickable];
-    [self makeNextButtonActive];
-}
-
+/** This method is called whenever viewDidLoad or when a user switches to the 
+  * playView tab aftering having visited the settingsView tab. 
+  * When this method is called it checks to see if we are still playing the same game 
+  * that we were playing when we left the playView tab. If we have switched games, 
+  * appropriate actions are taken to load the new game. */
 - (void) viewDidAppear:(BOOL)animated {
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     if (![_lastPlaymode isEqualToString:delegate.playmode]) {
@@ -136,28 +84,114 @@ struct tileCoordinate {
     }
 }
 
+/** Should we find that we changed games when calling viewDidAppear, this method
+  * is called from viewDidAppear. This reloads the screen in preparation for 
+  * the new game. */
+-(void) reloadScreen {
+    for (id timerObject in _allTimers){
+        if ([timerObject isValid]) [timerObject invalidate];
+    }
+    [_allTimers removeAllObjects];
+    
+    [matrix resetToGray];
+    gameRunning = false;
+
+    //Initialize to one of the four games. Initializers can be found below. 
+    if ([_lastPlaymode isEqualToString:@"SpeedTile"]) [self initSpeedTile];
+    else if ([_lastPlaymode isEqualToString:@"OriginalRules"]) [self initOriginalRules];
+    else if ([_lastPlaymode isEqualToString:@"ChainTile"]) [self initChainTile];
+    else [self initMemoryTile];
+}
+
+/** The following four methods are the initializers for each of the four games in this suite. 
+  * Each one sets the various parameters to their starting position. */
+-(void) initSpeedTile {
+    [matrix makeTilesClickable];
+    [_startButton setTitle:@"Start" forState:UIControlStateNormal];
+    _topInfoLabel.text = speedHighScore;
+    _infoLabel.text = @"";
+
+    _topSquare.backgroundColor = [UIColor clearColor];
+    _square.backgroundColor = [UIColor clearColor];
+}
+-(void) initOriginalRules {
+    [matrix makeTilesClickable];
+    [_startButton setTitle:@"Reset" forState:UIControlStateNormal];
+    _topInfoLabel.text = @"Blue Score: 0";
+    _infoLabel.text =    @"Red  Score: 0";
+
+    player = true;
+    count = 0;
+    _topSquare.backgroundColor = [UIColor blueColor];
+    _square.backgroundColor = [UIColor clearColor];
+    originalBlueScore = 0;
+    originalRedScore = 0;
+}
+-(void) initChainTile {
+    [matrix makeTilesClickable];
+    [_startButton setTitle:@"Reset" forState:UIControlStateNormal];
+    _topInfoLabel.text = @"Blue   Score: 0";
+    _infoLabel.text =    @"Yellow Score: 0";
+
+    player = true;
+    _topSquare.backgroundColor = [UIColor blueColor];
+    _square.backgroundColor = [UIColor clearColor];
+
+    _blueMoves = [[NSMutableArray alloc] initWithObjects: nil];
+    _yellowMoves = [[NSMutableArray alloc] initWithObjects: nil];
+    _chainStack = [[NSMutableArray alloc] initWithObjects: nil];
+    chainYellowScore = 0;
+    chainBlueScore = 0;
+}
+-(void) initMemoryTile {
+    [matrix makeTilesNonclickable];
+    [_startButton setTitle:@"Next" forState:UIControlStateNormal];
+    _topInfoLabel.text = [NSString stringWithFormat:@"Max Level: %d", maxMemoryLevel];
+    _infoLabel.text = @"Current Level: 0";
+
+    _topSquare.backgroundColor = [UIColor clearColor];
+    _square.backgroundColor = [UIColor clearColor];
+
+    _chainStack = [[NSMutableArray alloc] initWithObjects: nil];
+    currentMemoryLevel = 0;
+    [self makeNextButtonActive];
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
+
+/////////////////////////////////////////////////
+//        GENERAL GAME PLAY SKELETON           //
+/////////////////////////////////////////////////
+
+/** Every game in this suite should be implemented in the 
+  * makePlayForRules / reset / rulesButton format 
+  * A game MUST implement the three methods: makePlayForRules, 
+  * reset, rulesButton; in order to be a part of this suite. */
 
 -(IBAction) selectedTile: (id) sender {
     UIButton *thisButton = (UIButton *) sender;
     int y = [thisButton tag] % 10;
     int x = [thisButton tag] / 10;
-    [self makePlayForRules:_buttonArray forX:x andY:y];
+    [self makePlayForRules: x andY:y];
 }
 
--(void) makePlayForRules: (NSMutableArray *) buttonArray forX: (int) x andY: (int) y {
+/** This is the most important method for determining gameplay. This method is called 
+  * whenever a tile is selected and is guaranteed to receive the matrix position of the
+  * selected tile. */
+-(void) makePlayForRules: (int) x andY: (int) y {
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSString *playmode = delegate.playmode;
-    if([playmode isEqualToString:@"SpeedTile"]) [self makePlayForRulesSpeedTile:buttonArray forX:x andY:y];
-    else if([playmode isEqualToString:@"OriginalRules"]) [self originalRules:buttonArray forX:x andY:y];
-    else if([playmode isEqualToString:@"ChainTile"]) [self makePlayForRulesChainTile:buttonArray forX:x andY:y];
-    else [self makePlayForRulesMemoryTile:buttonArray forX:x andY:y];
+    if([playmode isEqualToString:@"SpeedTile"]) [self makePlayForRulesSpeedTile: x andY:y];
+    else if([playmode isEqualToString:@"OriginalRules"]) [self makePlayForRulesOriginalRules: x andY:y];
+    else if([playmode isEqualToString:@"ChainTile"]) [self makePlayForRulesChainTile: x andY:y];
+    else [self makePlayForRulesMemoryTile: x andY:y];
 }
 
+/** This method is triggered by the reset button in the lower left corner of the screen. 
+  * It should handle starting/stopping/resetting your game as you see fit. */
 - (IBAction)reset:(id)sender {
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSString *playmode = delegate.playmode;
@@ -167,6 +201,8 @@ struct tileCoordinate {
     else [self resetMemoryTile];
 }
 
+/** This method is triggered by the rules button in the lower right corner of the screen.
+  * It should handle alerting the user of the rules of the current game. */
 - (IBAction)rulesButton:(id)sender {
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSString *playmode = delegate.playmode;
@@ -176,8 +212,20 @@ struct tileCoordinate {
     else [self rulesButtonMemoryTile];
 }
 
-#pragma mark SpeedTile methods
+/////////////////////////////////////////////////
+//        SPEED TILE METHODS                   //
+/////////////////////////////////////////////////
 
+/** Implementation of makePlayRules for Speed Tile. */
+-(void) makePlayForRulesSpeedTile: (int)x andY:(int)y {
+    if (![[matrix colorAtX:x andY:y] isEqual:[UIColor redColor]])
+        return;
+    [matrix changeColorTo:[UIColor grayColor] atX:x andY:y];
+    [matrix flipRightAtX:x andY:y forDuration:0.40];
+    speedCount -= 1;
+}
+
+/** Implementation of reset for Speed Tile. */
 - (void) resetSpeedTile {
     if (!gameRunning) {
         _theTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(randomFlip) userInfo:nil repeats:YES];
@@ -196,38 +244,33 @@ struct tileCoordinate {
             [_theClockTimer invalidate];
             _infoLabel.text = @"";
         }
-        
-        //Reset to gray and notitle
-        // HERE IS A RESET
         [matrix resetToGray];
-        
         speedCount = 0;
         timerCount = 0;
-        chainBlueScore = 0;
-        chainYellowScore = 0;
-        
         gameRunning = false;
-        [_startButton setTitle:@"Start" forState:UIControlStateNormal];
-        
+        [_startButton setTitle:@"Start" forState:UIControlStateNormal];  
     }
-
 }
 
--(void) makePlayForRulesSpeedTile:(NSMutableArray *)buttonArray forX:(int)x andY:(int)y {
-    if (![[matrix colorAtX:x andY:y] isEqual:[UIColor redColor]])
-        return;
-    [matrix changeColorTo:[UIColor grayColor] atX:x andY:y];
-    [matrix flipRightAtX:x andY:y forDuration:0.40];
-    speedCount -= 1;
+/** Implementation of rulesButton for Speed Tile. */
+- (void) rulesButtonSpeedTile {
+    if (!gameRunning) {
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Speed Tile Rules"
+                                                    message:@"Play against the computer who is flipping tiles faster and faster"
+                                                   delegate:nil
+                                          cancelButtonTitle:@"OK"
+                                          otherButtonTitles:nil];
+    [alert show];
+    }
 }
 
 -(void) randomFlip {
     timerCount += 1;
-    int randX = arc4random() % 6;
-    int randY = arc4random() % 6;
+    int randX = arc4random() % matrix_size;
+    int randY = arc4random() % matrix_size;
     while ([[matrix colorAtX:randX andY:randY] isEqual:[UIColor redColor]]) {
-        randX = rand() % 6;
-        randY = rand() % 6;
+        randX = rand() % matrix_size;
+        randY = rand() % matrix_size;
     }
     [matrix flipRightAtX:randX andY:randY forDuration:0.40];
     [matrix changeColorTo:[UIColor redColor] atX:randX andY:randY];
@@ -246,24 +289,25 @@ struct tileCoordinate {
 }
 
 -(void) youLose {
-    
-    [matrix changeColorTo:[UIColor greenColor] atX:1 andY:2];
-    [matrix setTitle:@"G" atX:1 andY:2];
-    [matrix changeColorTo:[UIColor greenColor] atX:2 andY:2];
-    [matrix setTitle:@"A" atX:2 andY:2];
-    [matrix changeColorTo:[UIColor greenColor] atX:3 andY:2];
-    [matrix setTitle:@"M" atX:3 andY:2];
-    [matrix changeColorTo:[UIColor greenColor] atX:4 andY:2];
-    [matrix setTitle:@"E" atX:4 andY:2];
-    
-    [matrix changeColorTo:[UIColor greenColor] atX:1 andY:3];
-    [matrix setTitle:@"O" atX:1 andY:3];
-    [matrix changeColorTo:[UIColor greenColor] atX:2 andY:3];
-    [matrix setTitle:@"V" atX:2 andY:3];
-    [matrix changeColorTo:[UIColor greenColor] atX:3 andY:3];
-    [matrix setTitle:@"E" atX:3 andY:3];
-    [matrix changeColorTo:[UIColor greenColor] atX:4 andY:3];
-    [matrix setTitle:@"R" atX:4 andY:3];
+    if (matrix_size > 4) {
+        [matrix changeColorTo:[UIColor greenColor] atX:1 andY:2];
+        [matrix setTitle:@"G" atX:1 andY:2];
+        [matrix changeColorTo:[UIColor greenColor] atX:2 andY:2];
+        [matrix setTitle:@"A" atX:2 andY:2];
+        [matrix changeColorTo:[UIColor greenColor] atX:3 andY:2];
+        [matrix setTitle:@"M" atX:3 andY:2];
+        [matrix changeColorTo:[UIColor greenColor] atX:4 andY:2];
+        [matrix setTitle:@"E" atX:4 andY:2];
+        
+        [matrix changeColorTo:[UIColor greenColor] atX:1 andY:3];
+        [matrix setTitle:@"O" atX:1 andY:3];
+        [matrix changeColorTo:[UIColor greenColor] atX:2 andY:3];
+        [matrix setTitle:@"V" atX:2 andY:3];
+        [matrix changeColorTo:[UIColor greenColor] atX:3 andY:3];
+        [matrix setTitle:@"E" atX:3 andY:3];
+        [matrix changeColorTo:[UIColor greenColor] atX:4 andY:3];
+        [matrix setTitle:@"R" atX:4 andY:3];
+    }
     
     _startButton.titleLabel.text = @"Reset";
     
@@ -277,17 +321,6 @@ struct tileCoordinate {
         speedHighScore = _infoLabel.text;
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setObject:speedHighScore forKey:@"speedHighScore"];
-    }
-}
-
-- (void) rulesButtonSpeedTile {
-    if (!gameRunning) {
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Speed Tile Rules"
-                                                    message:@"Play against the computer who is flipping tiles faster and faster"
-                                                   delegate:nil
-                                          cancelButtonTitle:@"OK"
-                                          otherButtonTitles:nil];
-    [alert show];
     }
 }
 
@@ -324,28 +357,39 @@ struct tileCoordinate {
     return (NSInteger *)(minute * 10000 + second* 100 + milisecond);
 }
 
-#pragma mark OriginalRules methods
+/////////////////////////////////////////////////
+//        ORIGINAL RULES METHODS               //
+/////////////////////////////////////////////////
 
--(void) originalRules: (NSMutableArray *) buttonArray forX: (int) x andY: (int) y {
+/** Implementation of makePlayRules for Original Rules. */
+-(void) makePlayForRulesOriginalRules: (int) x andY: (int) y {
     
     if (![matrix isGrayAtX:x andY:y])
         return;
     [matrix flipRightAtX:x andY:y forDuration:0.40];
-    UIColor *newColor = whosTurn ? [UIColor blueColor] : [UIColor redColor];
+    UIColor *newColor = player ? [UIColor blueColor] : [UIColor redColor];
     [matrix changeColorTo:newColor atX:x andY:y];
     UIButton *pushedButton = [matrix getButtonAtX:x andY:y];
-    int myPoints = 1;
-    int minusPoints = 0;
+    if (player) {
+        originalBlueScore += 1;
+    } else {
+        originalRedScore += 1;
+    }
     for (int i = -1; i < 2; i++) {
         for (int j = -1; j < 2; j++) {
             int newX = x + i;
             int newY = y + j;
             
-            if (newX >= 0 && newY >= 0 && newX < 6 && newY < 6) {
+            if (newX >= 0 && newY >= 0 && newX < matrix_size && newY < matrix_size) {
                 UIButton *adjacentButton = [matrix getButtonAtX:newX andY:newY];
                 if (adjacentButton.backgroundColor != [UIColor grayColor] && adjacentButton.backgroundColor != pushedButton.backgroundColor) {
-                    myPoints += 1;
-                    minusPoints += 1;
+                    if (player) {
+                        originalBlueScore += 1;
+                        originalRedScore -= 1;
+                    } else {
+                        originalRedScore += 1;
+                        originalBlueScore -= 1;
+                    }
                     [matrix changeColorTo:newColor atX:newX andY:newY];
                     [matrix flipRightAtX:newX andY:newY forDuration:0.40];
                 }
@@ -353,30 +397,13 @@ struct tileCoordinate {
         }
     }
     
-    NSString *scoreString = whosTurn ? _topInfoLabel.text : _infoLabel.text;
-    NSString *otherScoreString = whosTurn ? _infoLabel.text : _topInfoLabel.text;
-    NSArray *secondSplits = [otherScoreString componentsSeparatedByString:@" "];
-    NSArray *theSplits = [scoreString componentsSeparatedByString:@" "];
-    int currentScore = [[theSplits objectAtIndex:2] intValue];
-    int theirScore = [[secondSplits objectAtIndex:2] intValue];
-    theirScore -= minusPoints;
-    currentScore += myPoints;
-    NSString *stringOne = [theSplits objectAtIndex:0];
-    NSString *stringTwo = [theSplits objectAtIndex:1];
-    NSString *theirOne = [secondSplits objectAtIndex:0];
-    if (whosTurn) {
-        _topInfoLabel.text = [NSString stringWithFormat:@"%@ %@ %d", stringOne, stringTwo, currentScore];
-        _infoLabel.text = [NSString stringWithFormat:@"%@ %@ %d", theirOne, stringTwo, theirScore];
-    } else {
-        _infoLabel.text = [NSString stringWithFormat:@"%@ %@ %d", stringOne, stringTwo, currentScore];
-        _topInfoLabel.text = [NSString stringWithFormat:@"%@ %@ %d", theirOne, stringTwo, theirScore];
-    }
+    [self updateOriginal];
     
     if (count == 0) {
         count++;
     } else {
-        whosTurn = !whosTurn;
-        if (whosTurn) {
+        player = !player;
+        if (player) {
             _topSquare.backgroundColor = [UIColor blueColor];
             _square.backgroundColor = [UIColor clearColor];
         } else {
@@ -387,23 +414,24 @@ struct tileCoordinate {
     }
 }
 
+/** Implementation of reset for Original Rules. */
 -(void) resetOriginalRules {
     
     [_startButton setTitle:@"Reset" forState:UIControlStateNormal];
     _topInfoLabel.text = @"Blue Score: 0";
     _infoLabel.text =    @"Red  Score: 0";
-    whosTurn = true;
+    player = true;
     count = 0;
     _topSquare.backgroundColor = [UIColor blueColor];
     _square.backgroundColor = [UIColor clearColor];
     
-    //Make every button grayColor
     [matrix resetToGray];
     
     gameRunning = false;
     
 }
 
+/** Implementation of rulesButton for Original Rules. */
 - (void) rulesButtonOriginalRules {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Flip Tile Rules"
                                                         message:@"Play against a friend! Take two turns each and try to get the most tiles"
@@ -413,9 +441,17 @@ struct tileCoordinate {
         [alert show];
 }
 
-#pragma mark ChainTile methods
+-(void) updateOriginal {
+    _topInfoLabel.text = [NSString stringWithFormat:@"Blue Score: %d", originalBlueScore];
+    _infoLabel.text = [NSString stringWithFormat:@"Red  Score: %d", originalRedScore];
+}
 
-- (void) makePlayForRulesChainTile: (NSMutableArray *) buttonArray forX: (int) x andY: (int) y {
+/////////////////////////////////////////////////
+//        CHAIN TILE METHODS                   //
+/////////////////////////////////////////////////
+
+/** Implementation of makePlayForRules for Chain Tile. */
+- (void) makePlayForRulesChainTile: (int) x andY: (int) y {
     if (![matrix isGrayAtX:x andY:y])
         return;
     
@@ -476,6 +512,24 @@ struct tileCoordinate {
     }
 }
 
+/** Implementation of reset for Chain Tile. */
+-(void) resetChainTile {
+    [matrix resetToGray];
+    [self initChainTile];
+}
+
+/** Implementation of rulesButton for Chain Tile. */
+- (void) rulesButtonChainTile {
+    if (!gameRunning) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Chain Tile Rules"
+                                                        message:@"Play with a friend. Flipping a tile activates a chain reaction!"
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+    }
+}
+
 -(void) chainAnimation {
     int xOld = [[_chainStack objectAtIndex:0] integerValue];
     [_chainStack removeObjectAtIndex:0];
@@ -490,18 +544,13 @@ struct tileCoordinate {
     globalFlipper = !globalFlipper;
 }
 
--(void) updateChain {
-    _topInfoLabel.text = [NSString stringWithFormat:@"Blue Score: %d", chainBlueScore];
-    _infoLabel.text = [NSString stringWithFormat:@"Yellow Score: %d", chainYellowScore];
-}
-
 -(void) flipNeighbors: (int) x andY: (int) y andWho: (BOOL) whoToFlip {
     for (int i = -1; i < 2; i++) {
         for (int j = -1; j < 2; j++) {
             int newX = x + i;
             int newY = y + j;
         
-            if (newX >= 0 && newY >= 0 && newX < 6 && newY < 6) {
+            if (newX >= 0 && newY >= 0 && newX < matrix_size && newY < matrix_size) {
                 UIColor *nextColor = (whoToFlip) ? [UIColor blueColor] : [UIColor yellowColor];
                 if (![matrix isGrayAtX:newX andY:newY] && !(i == 0 && j == 0) ) {
                     if ([matrix colorAtX:newX andY:newY] != nextColor){
@@ -523,35 +572,25 @@ struct tileCoordinate {
     [self updateChain];
 }
 
--(void) resetChainTile {
-    //Make every button grayColor
-    [matrix resetToGray];
-    [self initChainTile];
-    
-}
-
-- (void) rulesButtonChainTile {
-    if (!gameRunning) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Chain Tile Rules"
-                                                        message:@"Play with a friend. Flipping a tile activates a chain reaction!"
-                                                       delegate:nil
-                                              cancelButtonTitle:@"OK"
-                                              otherButtonTitles:nil];
-        [alert show];
-    }
-}
-
-#pragma mark memoryTile methods
-
--(void) makeTilesNonclickable {
-    [matrix makeTilesClickable];
+-(void) updateChain {
+    _topInfoLabel.text = [NSString stringWithFormat:@"Blue Score: %d", chainBlueScore];
+    _infoLabel.text = [NSString stringWithFormat:@"Yellow Score: %d", chainYellowScore];
 }
 
 -(void) makeTilesClickable {
     [matrix makeTilesClickable];
 }
 
--(void) makePlayForRulesMemoryTile:(NSMutableArray *)buttonArray forX:(int)x andY:(int)y {
+-(void) makeTilesNonclickable {
+    [matrix makeTilesNonclickable];
+}
+
+/////////////////////////////////////////////////
+//        MEMORY TILE METHODS                  //
+/////////////////////////////////////////////////
+
+/** Implementation of makePlayForRules for Memory Tile. */
+-(void) makePlayForRulesMemoryTile: (int)x andY:(int)y {
     UIButton *thisButton = [matrix getButtonAtX:x andY:y];
     if ([_chainStack containsObject: thisButton]) {
         [_chainStack removeObject:thisButton];
@@ -590,10 +629,8 @@ struct tileCoordinate {
     }
     
 }
--(void) makeNextButtonActive{
-    nextButtonActive = true;
-}
 
+/** Implementation of reset for Memory Tile. */
 -(void) resetMemoryTile {
     if (!nextButtonActive) return;
     while (_chainStack.count > 0) [_chainStack removeObjectAtIndex:0];
@@ -612,15 +649,31 @@ struct tileCoordinate {
     nextButtonActive = false;
 }
 
+/** Implementation of rulesButton for Memory Tile. */
+- (void) rulesButtonMemoryTile {
+    if (!gameRunning) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Memory Tile Rules"
+                                                        message:@"Remember where the tiles were shown."
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+    }
+}
+
+-(void) makeNextButtonActive{
+    nextButtonActive = true;
+}
+
 -(void) makeMemoryLevel {
     int increment = 1;
     int numLoops = 0;
     for(int i = 0; i < currentMemoryLevel + 1 && numLoops < 17; i+= increment){
-        int randX = arc4random() % 6;
-        int randY = arc4random() % 6;
+        int randX = arc4random() % matrix_size;
+        int randY = arc4random() % matrix_size;
         while ([[matrix colorAtX:randX andY:randY] isEqual:[UIColor greenColor]]){
-            randX = arc4random() % 6;
-            randY = arc4random() % 6;
+            randX = arc4random() % matrix_size;
+            randY = arc4random() % matrix_size;
         }
         UIButton *hiddenButton = [matrix getButtonAtX:randX andY:randY];
         [_chainStack addObject:hiddenButton];
@@ -640,17 +693,20 @@ struct tileCoordinate {
         int theTag = [buttonToSwap tag];
         int xOld = theTag % 10;
         int yOld = theTag / 10;
-        int xNew = arc4random() % 6;
-        int yNew = arc4random() % 6;
+        int xNew = arc4random() % matrix_size;
+        int yNew = arc4random() % matrix_size;
         while (xNew == xOld && yNew == yOld) {
-            xNew = arc4random() % 6;
-            yNew = arc4random() % 6;
+            xNew = arc4random() % matrix_size;
+            yNew = arc4random() % matrix_size;
         }
         [matrix swapFirstX:xOld firstY:yOld secondX:xNew secondY:yNew];
         [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(noop) userInfo:Nil repeats:NO]];
     }
 }
 
+/** noop - no operation. Used in combination with a timer in order
+  * to achieve a clean delay. Note that this does not delay the entire
+  * program, only execution of makeTileSwaps. */
 -(void) noop {
     noopCount -= 1;
     [self makeTileSwaps];
@@ -658,8 +714,8 @@ struct tileCoordinate {
 
 - (void) makeTilesGrayFlip {
     UIButton *thisButton;
-    for (int i = 0; i < 6; i++) {
-        for (int j = 0; j < 6; j++) {
+    for (int i = 0; i < matrix_size; i++) {
+        for (int j = 0; j < matrix_size; j++) {
             thisButton = [matrix getButtonAtX:i andY:j];
             [matrix setTitle:@"" atX:i andY:j];
             if (thisButton.backgroundColor != [UIColor grayColor]) {
@@ -674,17 +730,5 @@ struct tileCoordinate {
     self.topInfoLabel.text = [NSString stringWithFormat:@"Max Level: %d", maxMemoryLevel];
     self.infoLabel.text = [NSString stringWithFormat:@"Current Level: %d", currentMemoryLevel];
 }
-
-- (void) rulesButtonMemoryTile {
-    if (!gameRunning) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Memory Tile Rules"
-                                                        message:@"Remember where the tiles were shown."
-                                                       delegate:nil
-                                              cancelButtonTitle:@"OK"
-                                              otherButtonTitles:nil];
-        [alert show];
-    }
-}
-
 
 @end
