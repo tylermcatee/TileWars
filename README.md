@@ -1,9 +1,7 @@
 TileWars
 ========
 
-TileWars application written for Facebooks 2013 Norcal Regional Hack-a-thon.
-Won Honorable Mention.
+TileWars application written for Facebooks 2013 Norcal Regional Hack-a-thon. One of three apps that won an honorable mention. 
+The "Finished" commit marks the end of the hack-a-thon. 
 
-All code here was written in 24 hours as of the "finished" commit. 
-
-Code was updated to fix bugs and improve gameplay as intended.
+We are continuing to impove the application and plan to release it soon to the app store. 
