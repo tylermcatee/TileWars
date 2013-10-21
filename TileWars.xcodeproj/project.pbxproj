@@ -31,6 +31,7 @@
 		2F811A051809B34700113633 /* favicon@120.png in Resources */ = {isa = PBXBuildFile; fileRef = 2F811A021809B34700113633 /* favicon@120.png */; };
 		2F811A081809B38600113633 /* favicon@58.png in Resources */ = {isa = PBXBuildFile; fileRef = 2F811A061809B38600113633 /* favicon@58.png */; };
 		2F811A091809B38600113633 /* favicon@80.png in Resources */ = {isa = PBXBuildFile; fileRef = 2F811A071809B38600113633 /* favicon@80.png */; };
+		2FAE98931814F8580034CE23 /* tileMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 2FAE98911814F8580034CE23 /* tileMatrix.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +75,8 @@
 		2F811A021809B34700113633 /* favicon@120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "favicon@120.png"; sourceTree = "<group>"; };
 		2F811A061809B38600113633 /* favicon@58.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "favicon@58.png"; sourceTree = "<group>"; };
 		2F811A071809B38600113633 /* favicon@80.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "favicon@80.png"; sourceTree = "<group>"; };
+		2FAE98911814F8580034CE23 /* tileMatrix.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = tileMatrix.m; sourceTree = "<group>"; };
+		2FAE98921814F8580034CE23 /* tileMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tileMatrix.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +137,8 @@
 		2F8119B51808F9C100113633 /* TileWars */ = {
 			isa = PBXGroup;
 			children = (
+				2FAE98911814F8580034CE23 /* tileMatrix.m */,
+				2FAE98921814F8580034CE23 /* tileMatrix.h */,
 				2F8119ED1808FA1400113633 /* RulesViewController.h */,
 				2F8119EE1808FA1400113633 /* RulesViewController.m */,
 				2F8119E71808FA0000113633 /* PlayViewController.h */,
@@ -303,6 +308,7 @@
 			files = (
 				2F8119C01808F9C100113633 /* AppDelegate.m in Sources */,
 				2F8119E91808FA0000113633 /* PlayViewController.m in Sources */,
+				2FAE98931814F8580034CE23 /* tileMatrix.m in Sources */,
 				2F8119EF1808FA1400113633 /* RulesViewController.m in Sources */,
 				2F8119BC1808F9C100113633 /* main.m in Sources */,
 			);

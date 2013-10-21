@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "tileMatrix.h"
+
 @interface PlayViewController : UIViewController {
     BOOL whosTurn;
     int count;
@@ -35,6 +37,8 @@
     int maxMemoryLevel;
     int noopCount;
     NSString* speedHighScore;
+    
+    tileMatrix *matrix;
 
 }
 
