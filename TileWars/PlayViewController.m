@@ -31,7 +31,7 @@ struct tileCoordinate {
     maxMemoryLevel = [prefs integerForKey:@"maxMemoryLevel"];
     speedHighScore = [prefs objectForKey:@"speedHighScore"];
 
-    /** This constant declares the size of the matrix for the entire execution of 
+    /** This constant declares the size of the matrix for the entire execution of
       * the program. Must be 1 <= N <= 6 or tileMatrix will throw errors due to 
       * limited screen size. */
     matrix_size = 6;
@@ -498,9 +498,12 @@ struct tileCoordinate {
         timeStop += 0.65;
     }
     
-    [_allTimers addObject: [NSTimer scheduledTimerWithTimeInterval:timeStop target:self selector:@selector(makeTilesClickable) userInfo:nil repeats:NO]];
+    [_allTimers addObject: [NSTimer scheduledTimerWithTimeInterval:timeStop target:self selector:@selector(makeChainClickable) userInfo:nil repeats:NO]];
     [self updateChain];
-    
+}
+
+-(void) makeChainClickable {
+    [matrix makeTilesClickable];
     player = !player;
     
     if (player) {
