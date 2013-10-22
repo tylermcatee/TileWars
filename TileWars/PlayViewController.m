@@ -645,10 +645,6 @@ struct tileCoordinate {
         noopCount = (currentMemoryLevel - 1);
         [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:2 target:self selector:@selector(makeTileSwaps) userInfo:nil repeats:NO]];
     }
-    if (_chainStack.count == 2){
-        [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeTilesClickable) userInfo:nil repeats:NO]];
-    }
-    else[_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:_chainStack.count target:self selector:@selector(makeTilesClickable) userInfo:nil repeats:NO]];
     nextButtonActive = false;
 }
 
@@ -671,6 +667,7 @@ struct tileCoordinate {
 -(void) makeMemoryLevel {
     int increment = 1;
     int numLoops = 0;
+    [matrix makeTilesNonclickable];
     for(int i = 0; i < currentMemoryLevel + 1 && numLoops < 17; i+= increment){
         int randX = arc4random() % matrix_size;
         int randY = arc4random() % matrix_size;
@@ -687,6 +684,10 @@ struct tileCoordinate {
             increment += 1;
         }
     }
+    if (_chainStack.count == 2){
+        [_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(makeTilesClickable) userInfo:nil repeats:NO]];
+    }
+    else[_allTimers addObject:[NSTimer scheduledTimerWithTimeInterval:_chainStack.count target:self selector:@selector(makeTilesClickable) userInfo:nil repeats:NO]];
 }
 
 -(void) makeTileSwaps {
